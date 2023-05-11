@@ -1,0 +1,4615 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: info@gomaestro.org
+    name: Maestro Blockchain Inc.
+    url: https://gomaestro.org/
+  description: |-
+    The **Maestro Blockchain Indexer API** follows the [REST](https://restfulapi.net/) paradigm. To interact with Mapi, please  head over to [Dashboards](https://dashboard.gomaestro.org), create an API project, and copy its associated long-lived API key into your request header.
+
+    Your Mapi project is rate-limited based on your API package tier. Please see the available [Packages](https://dashboard.gomaestro.org/pricing) for more details or to upgrade your plan.
+
+    Example `GET` request for retrieving the chain tip:
+    ```
+    curl -X GET --header "api-key: <your_project_api_key>" https://mainnet.gomaestro-api.org/v0/chain-tip
+    ```
+
+    Example `POST` request for submitting a transaction:
+    ```
+    curl -X POST --header "Content-Type: application/cbor" --header "api-key: <your_project_api_key>" --data @tx.signed https://mainnet.gomaestro-api.org/v0/transactions
+    ```
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+  title: Blockchain Indexer API
+  version: V0
+servers:
+- description: Cardano Mainnet
+  url: https://mainnet.gomaestro-api.org/v0
+- description: Cardano Preprod
+  url: https://preprod.gomaestro-api.org/v0
+- description: Cardano Preview
+  url: https://preview.gomaestro-api.org/v0
+security:
+- api_key_header: []
+tags:
+- description: Stake account related endpoints
+  name: Accounts
+- description: Address related endpoints
+  name: Addresses
+- description: Native asset related endpoints
+  name: Assets
+- description: Miscellaneous endpoints
+  name: General
+- description: Datum related endpoints
+  name: Datum
+- description: Epoch related endpoints
+  name: Epochs
+- description: Pool related endpoints
+  name: Pools
+- description: Script related endpoints
+  name: Scripts
+- description: Transaction related endpoints
+  name: Transactions
+paths:
+  /chain-tip:
+    get:
+      deprecated: false
+      description: Returns details about the latest block of the network
+      operationId: chain_tip
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    block_hash: 2de4cd25f0a18228ce6451950793c54f6c556a53a5625c7fe80721f77c8b5fa8
+                    slot: 84899112
+                    height: 8402752
+              schema:
+                $ref: '#/components/schemas/ChainTip'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Chain tip details
+      tags:
+      - General
+  /era-history:
+    get:
+      deprecated: false
+      description: Returns the blockchain era history
+      operationId: era_history
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EraSummary'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Era history
+      tags:
+      - General
+  /protocol-params:
+    get:
+      deprecated: false
+      description: Returns the current protocol parameters
+      operationId: protocol_params
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolParameters'
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Network protocol parameters
+      tags:
+      - General
+  /system-start:
+    get:
+      deprecated: false
+      description: Returns the network start time since genesis
+      operationId: system_start
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                time: 2022-06-01 00:00:00
+              schema:
+                $ref: '#/components/schemas/SystemStart'
+          description: ""
+        "500":
+          description: Internal server error
+      summary: System start time
+      tags:
+      - General
+  /accounts/{stake_address}:
+    get:
+      deprecated: false
+      description: Returns a summary of information regarding a stake account
+      operationId: account_info
+      parameters:
+      - description: Bech32 encoded stake address
+        explode: false
+        in: path
+        name: stake_address
+        required: true
+        schema:
+          example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    stake_address: stake1uyxxchknmp6gs8aaaxa0awvymsnu6jewkls4qxdar7u8mvgycgfw0
+                    registered: true
+                    delegated_pool: pool1ljywsch33t7gaf02aeeqkqpuku0ngpwl9fm04t7u5sl5xyunmgp
+                    rewards_available: 368799
+                    utxo_balance: 2065559
+                    total_balance: 2434358
+                    total_rewarded: 609265727
+                    total_withdrawn: 608896928
+              schema:
+                $ref: '#/components/schemas/AccountInfo'
+          description: ""
+        "404":
+          description: "No results found. If the stake address is not registered or\
+            \ has no delegation history, there will be no on-chain data to return."
+        "500":
+          description: Internal server error
+      summary: Stake account information
+      tags:
+      - Accounts
+  /accounts/{stake_address}/addresses:
+    get:
+      deprecated: false
+      description: Returns a list of addresses seen on-chain which use the specified
+        stake key
+      operationId: account_addresses
+      parameters:
+      - description: Bech32 encoded stake address
+        explode: false
+        in: path
+        name: stake_address
+        required: true
+        schema:
+          example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - addr1qy0urzxq6kxncg5xqsw98d8t8ztxnf8zer5vdspgtll2m9wyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqzulq2a
+                  - addr1qx4grxy4e3cxnkhg4lulqyslycyx2x0ff6xxsq7jgfwdhwwyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqghe2lc
+              schema:
+                items:
+                  example: addr1qx4grxy4e3cxnkhg4lulqyslycyx2x0ff6xxsq7jgfwdhwwyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqghe2lc
+                  type: string
+                type: array
+            application/xml:
+              schema:
+                properties: {}
+                type: object
+          description: ""
+        "404":
+          description: "No results found. If the stake address is not registered or\
+            \ has no delegation history, there will be no on-chain data to return."
+        "500":
+          description: Internal server error
+      summary: Stake account addresses
+      tags:
+      - Accounts
+  /accounts/{stake_address}/assets:
+    get:
+      deprecated: false
+      description: Returns a list of native assets which are owned by addresses with
+        the specified stake key
+      operationId: account_assets
+      parameters:
+      - description: Bech32 encoded stake address
+        explode: false
+        in: path
+        name: stake_address
+        required: true
+        schema:
+          example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - quantity: 837
+                    unit: 318847394ec6842e1069f93c4b3641418a128ab57a97fcca520c7ff2#57455448
+                  - quantity: 1
+                    unit: 21d7d1f698f5fbcb751f9f85991fd115f884744de2317b921f46f821#42616e616e613832
+              schema:
+                items:
+                  $ref: '#/components/schemas/Asset'
+                type: array
+          description: ""
+        "404":
+          description: "No results found. If the stake address is not registered or\
+            \ has no delegation history, there will be no on-chain data to return."
+        "500":
+          description: Internal server error
+      summary: Stake account assets
+      tags:
+      - Accounts
+  /accounts/{stake_address}/history:
+    get:
+      deprecated: false
+      description: Returns per-epoch history of the specified stake key
+      operationId: account_history
+      parameters:
+      - description: Bech32 encoded stake address
+        explode: false
+        in: path
+        name: stake_address
+        required: true
+        schema:
+          example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        deprecated: false
+        description: Fetch result for a specific epoch
+        explode: true
+        in: query
+        name: epoch_no
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - epoch_no: 330
+                    pool_id: pool1ljywsch33t7gaf02aeeqkqpuku0ngpwl9fm04t7u5sl5xyunmgp
+                    active_stake: 2351516
+                  - epoch_no: 331
+                    pool_id: pool1ljywsch33t7gaf02aeeqkqpuku0ngpwl9fm04t7u5sl5xyunmgp
+                    active_stake: 2352432
+              schema:
+                items:
+                  $ref: '#/components/schemas/AccountHistory'
+                type: array
+          description: ""
+        "404":
+          description: "No results found. If the stake address is not registered or\
+            \ has no delegation history, there will be no on-chain data to return."
+        "500":
+          description: Internal server error
+      summary: Stake account history
+      tags:
+      - Accounts
+  /accounts/{stake_address}/rewards:
+    get:
+      deprecated: false
+      description: "Returns a list of staking-related rewards for the specified stake\
+        \ key (pool `member` or `leader` rewards, deposit `refund`)"
+      operationId: account_rewards
+      parameters:
+      - description: Bech32 encoded stake address
+        explode: false
+        in: path
+        name: stake_address
+        required: true
+        schema:
+          example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - type: member
+                    earned_epoch: 330
+                    spendable_epoch: 332
+                    amount: 976
+                    pool_id: pool1ljywsch33t7gaf02aeeqkqpuku0ngpwl9fm04t7u5sl5xyunmgp
+                  - type: member
+                    earned_epoch: 331
+                    spendable_epoch: 333
+                    amount: 1637
+                    pool_id: pool1ljywsch33t7gaf02aeeqkqpuku0ngpwl9fm04t7u5sl5xyunmgp
+              schema:
+                items:
+                  $ref: '#/components/schemas/AccountReward'
+                type: array
+          description: ""
+        "404":
+          description: "No results found. If the stake address is not registered or\
+            \ has no delegation history, there will be no on-chain data to return."
+        "500":
+          description: Internal server error
+      summary: Stake account rewards
+      tags:
+      - Accounts
+  /accounts/{stake_address}/updates:
+    get:
+      deprecated: false
+      description: "Returns a list of updates relating to the specified stake key\
+        \ (`registration`, `deregistration`, `delegation`, `withdrawal`)"
+      operationId: account_updates
+      parameters:
+      - description: Bech32 encoded stake address
+        explode: false
+        in: path
+        name: stake_address
+        required: true
+        schema:
+          example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - action: delegation
+                    tx_hash: 1265c152b4b2d38d7608834310bf80884e45d6351a3d0f0fee77864f2b172cba
+                    epoch_no: 317
+                    abs_slot: 51883604
+                  - action: registration
+                    tx_hash: 0c40c8218122d53b5a9e78fe2ac7e8b39de1f649c4d1438c00cc9b42050cd751
+                    epoch_no: 314
+                    abs_slot: 50517013
+              schema:
+                items:
+                  $ref: '#/components/schemas/AccountUpdate'
+                type: array
+          description: ""
+        "404":
+          description: "No results found. If the stake address is not registered or\
+            \ has no delegation history, there will be no on-chain data to return."
+        "500":
+          description: Internal server error
+      summary: Stake account updates
+      tags:
+      - Accounts
+  /addresses/utxos:
+    post:
+      deprecated: false
+      description: Return all UTxOs controlled by each address in a list of addresses
+      operationId: utxos_by_addresses
+      parameters:
+      - allowEmptyValue: true
+        description: Try find and include the corresponding datums for datum hashes
+        explode: true
+        in: query
+        name: resolve_datums
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - allowEmptyValue: true
+        description: Include the CBOR encodings of the transaction outputs in the
+          response
+        explode: true
+        in: query
+        name: with_cbor
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                - addr1wxgg25t3tk30jqzl2elqz94lzgmr8a9c9m5z902ds5sjh0g7uaj8z
+                - addr1vxmn8puzz09g7scp7gy0kwsg06eh4kep9padw9xmgnx88hqncydl5
+            schema:
+              items:
+                type: string
+              type: array
+        description: List of addresses
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - tx_hash: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+                    index: 0
+                    assets:
+                    - unit: lovelace
+                      quantity: 7280082022
+                    - unit: 34250edd1e9836f5378702fbf9416b709bc140e04f668cc355208518#4154414441636f696e
+                      quantity: 10824
+                    address: addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc
+                    datum:
+                      type: inline
+                      hash: 432cb73420839fb517533c365d7ec125c457ea4ba5c0349be81be6796d52ef3b
+                      bytes: 1a00278530
+                      json:
+                        int: 2590000
+                    reference_script:
+                      type: plutusv2
+                      hash: 3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712
+                      bytes: "480100002221200101"
+                      json: null
+              schema:
+                items:
+                  $ref: '#/components/schemas/Utxo'
+                type: array
+          description: Return UTxOs
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: UTxOs at multiple addresses
+      tags:
+      - Addresses
+  /addresses/{address}/decode:
+    get:
+      deprecated: false
+      description: Returns the attributes of a decoded receiving address
+      operationId: decode_address
+      parameters:
+      - deprecated: false
+        description: ""
+        explode: false
+        in: path
+        name: address
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    bech32: addr1zxgx3far7qygq0k6epa0zcvcvrevmn0ypsnfsue94nsn3tvpw288a4x0xf8pxgcntelxmyclq83s0ykeehchz2wtspks905plm
+                    hex: 119068a7a3f008803edac87af1619860f2cdcde40c26987325ace138ad81728e7ed4cf324e1323135e7e6d931f01e30792d9cdf17129cb806d
+                    network: mainnet
+                    payment_cred:
+                      kind: script
+                      bech32: addr_shared_vkh1jp520glspzqrakkg0tckrxrq7txumeqvy6v8xfdvuyu26qqv5qn
+                      hex: 9068a7a3f008803edac87af1619860f2cdcde40c26987325ace138ad
+                    staking_cred:
+                      kind: key
+                      bech32: stake_vkh1s9egulk5eueyuyerzd08umvnruq7xpujm8xlzuffewqx6s0mg9v
+                      reward_address: stake1uxqh9rn76n8nynsnyvf4ulndjv0srcc8jtvumut3989cqmgjt49h6
+                      hex: 81728e7ed4cf324e1323135e7e6d931f01e30792d9cdf17129cb806d
+                      pointer: null
+              schema:
+                $ref: '#/components/schemas/AddressInfo'
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Decoded receiving address information
+      tags:
+      - Addresses
+  /addresses/{address}/transactions/count:
+    get:
+      deprecated: false
+      description: Returns the total number of transactions in which an address spent
+        or received assets
+      operationId: tx_count_by_address
+      parameters:
+      - description: Bech32 encoded address
+        explode: false
+        in: path
+        name: address
+        required: true
+        schema:
+          example: addr1qyl9ez2532trgydh5cny3ww72ygw8vugkvu98ln5x2zfgsxyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqdg24wq
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    count: 151424
+              schema:
+                $ref: '#/components/schemas/AddressTxCount'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Transaction count of an address
+      tags:
+      - Addresses
+  /addresses/{address}/utxo_refs:
+    get:
+      deprecated: false
+      description: Return all UTxO references controlled by an address
+      operationId: utxo_refs_at_address
+      parameters:
+      - description: Bech32 encoded address
+        explode: false
+        in: path
+        name: address
+        required: true
+        schema:
+          example: addr1qyl9ez2532trgydh5cny3ww72ygw8vugkvu98ln5x2zfgsxyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqdg24wq
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - index: 0
+                    tx_hash: dddd9d38fa67d0ed15dd1ffc3893d303c126a809dc74e53d53d0f2f13867c52f
+                  - index: 2
+                    tx_hash: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+              schema:
+                items:
+                  $ref: '#/components/schemas/UtxoRef'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: UTxO references at an address
+      tags:
+      - Addresses
+  /addresses/{address}/utxos:
+    get:
+      deprecated: false
+      description: Return UTxOs controlled by an address
+      operationId: address_utxos
+      parameters:
+      - description: Bech32 encoded address
+        explode: false
+        in: path
+        name: address
+        required: true
+        schema:
+          example: addr1qyl9ez2532trgydh5cny3ww72ygw8vugkvu98ln5x2zfgsxyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqdg24wq
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: Try find and include the corresponding datums for datum hashes
+        explode: true
+        in: query
+        name: resolve_datums
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - allowEmptyValue: true
+        description: Include the CBOR encodings of the transaction outputs in the
+          response
+        explode: true
+        in: query
+        name: with_cbor
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - tx_hash: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+                    index: 0
+                    assets:
+                    - unit: lovelace
+                      quantity: 7280082022
+                    - unit: 34250edd1e9836f5378702fbf9416b709bc140e04f668cc355208518#4154414441636f696e
+                      quantity: 10824
+                    address: addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc
+                    datum:
+                      type: inline
+                      hash: 432cb73420839fb517533c365d7ec125c457ea4ba5c0349be81be6796d52ef3b
+                      bytes: 1a00278530
+                      json:
+                        int: 2590000
+                    reference_script:
+                      type: plutusv2
+                      hash: 3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712
+                      bytes: "480100002221200101"
+                      json: null
+              schema:
+                items:
+                  $ref: '#/components/schemas/Utxo'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: UTxOs at an address
+      tags:
+      - Addresses
+  /assets/{asset}:
+    get:
+      deprecated: false
+      description: Return a summary of information about an asset
+      operationId: asset_info
+      parameters:
+      - description: Native asset (concatenation of hex encoded policy ID and hex
+          encoded asset name)
+        explode: false
+        in: path
+        name: asset
+        required: true
+        schema:
+          example: 29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                CIP-68 example:
+                  value:
+                    asset_name: 0014df104152494741544f6b656e
+                    asset_name_ascii: \000\337ARIGATOken
+                    fingerprint: asset1jwvdcx0r4c45n2lah2yydx9z2y0k2e3rdtlzyw
+                    first_mint_tx: cbb242170d540d59f3904d26aa4d849e321b554c2e14084bcc1786ea7be81564
+                    first_mint_time: 1668470400
+                    mint_tx_count: 1
+                    burn_tx_count: 1
+                    total_supply: 0
+                    asset_standards:
+                      cip25_metadata: null
+                      cip68_metadata:
+                        purpose: user_ft
+                        version: 1
+                        metadata:
+                          decimals: "0"
+                          description: A token for Cardano_Waifus project
+                          logo: ipfs://QmcxbFm56ymFSHoq2UDm2d7NkGRj7ueMMoZBnUorWWoWTF
+                          name: ARIGATOken
+                          ticker: ARIGATO
+                          url: https://cardanowaifus.digital
+                        extra: null
+                    latest_mint_tx_metadata: null
+                    token_registry_metadata: null
+                CIP-25 example:
+                  value:
+                    asset_name: 50a400c2fad65ca37ddd99ab47346845d5292dcd10d7c483d4dd85f0b828aea3
+                    asset_name_ascii: "P\\244\\000\\302\\372\\326\\\\\\243}\\335\\\
+                      231\\253G4hE\\325)-\\315\x10\\327\\304\\203\\324\\335\\205\\\
+                      360\\270(\\256\\243"
+                    fingerprint: asset17ha95t2g0zvtq65g5tmpvnks646pmcl4h75tzn
+                    first_mint_tx: 58c6fc796580e7db3491aa8fce74b77c49f45039c92c1f2219f005424ff5df2f
+                    first_mint_time: 1673395200
+                    mint_tx_count: 1
+                    burn_tx_count: 1
+                    total_supply: 0
+                    asset_standards:
+                      cip25_metadata:
+                        BondId: 50a400c2fad65ca37ddd99ab47346845d5292dcd10d7c483d4dd85f0b828aea3
+                        Policy: 4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091
+                        image:
+                        - "image/svg+xml;base64,CgogIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3J"
+                        - nLzIwMDAvc3ZnIiB2aWV3Qm94PSItMzAwIC0xMDAgNzAwIDEwMDAiPgogICAgPHJ
+                        - lY3QgeD0iLTI5MCIgeT0iLTkwIiB3aWR0aD0iNjkwIiBoZWlnaHQ9Ijk5MCIgc3R
+                        - yb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjJweCIgZmlsbD0id2hpdGUiLz4KICA
+                        - gIDxwYXRoIGQ9Ik0gMCAwIEMgMCAwIDAgMCAwIDAgQyAwIC01MCA1MCAtNDAgOTA
+                        - gLTQwIEMgMTIwIC00MCAxMjAgMCA5MCAwIEwgMzAgMCBDIDEwIDAgMCAwIDAgMzA
+                        - iIGZpbGw9IiM1MGQxYjMiLz4KICAgIDxwYXRoIGQ9Ik0gMjAgMTAwIEMgLTEwIDM
+                        - wIC0xMCAwIDEwMCAxMCBDIDYwIDEwIDUwIDIwIDUwIDMwIEMgNTAgNDAgNTAgNjA
+                        - gNjAgOTAgQyA3MCAxMjAgMzAgMTMwIDIwIDEwMCBaIiBmaWxsPSIjMWI5ZWU2Ii8
+                        - +CiAgICA8dGV4dCB4PSIwIiB5PSI1MCIgZm9udC1zaXplPSI2MCIgZHk9IjAiIGZ
+                        - vbnQtZmFtaWx5PSJTYW5zIFNlcmlmIiBmaWxsPSIjMDAwMDAwIj4KICAgICAgPHR
+                        - zcGFuIHg9IjUlIiBkeT0iMS44ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGU
+                        - iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZMVUlEIEJPTkQ8L3RzcGFuPgogICAgICA
+                        - 8dHNwYW4geD0iNSUiIGR5PSIxLjJlbSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGR
+                        - sZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI0OCI+TGVuZGVyPC9
+                        - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS4yZW0iIGRvbWluYW50LWJ
+                        - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJvbmQgaWQ6PC9
+                        - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMi40ZW0iIGRvbWluYW50LWJ
+                        - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0
+                        - iMjAiPjUwYTQwMGMyZmFkNjVjYTM3ZGRkOTlhYjQ3MzQ2ODQ1ZDUyOTJkY2QxMGQ
+                        - 3YzQ4M2Q0ZGQ4NWYwYjgyOGFlYTM8L3RzcGFuPgogICAgPC90ZXh0PgogIDwvc3Z
+                        - nPgoKCiAg
+                        mediaType: image/svg+xml
+                        name: Fluid tokens bond
+                        twitter: https://twitter.com/fluidtokens
+                    latest_mint_tx_metadata:
+                      "7":
+                        AMOUNT: "500000000"
+                        CURRENCYASSET: ""
+                        CURRENCYID: ""
+                        HOURS: "504"
+                        ICURRENCYASSET: ""
+                        ICURRENCYID: ""
+                        INTEREST: "50000000"
+                        LENDER: e972f26e900c8756840b5ab4c2006f8e1ea7417931cadbd488542deb
+                      "721":
+                        "0x4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091":
+                          "0x50a400c2fad65ca37ddd99ab47346845d5292dcd10d7c483d4dd85f0b828aea3":
+                            BondId: 50a400c2fad65ca37ddd99ab47346845d5292dcd10d7c483d4dd85f0b828aea3
+                            Policy: 4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091
+                            image:
+                            - "image/svg+xml;base64,CgogIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3J"
+                            - nLzIwMDAvc3ZnIiB2aWV3Qm94PSItMzAwIC0xMDAgNzAwIDEwMDAiPgogICAgPHJ
+                            - lY3QgeD0iLTI5MCIgeT0iLTkwIiB3aWR0aD0iNjkwIiBoZWlnaHQ9Ijk5MCIgc3R
+                            - yb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjJweCIgZmlsbD0id2hpdGUiLz4KICA
+                            - gIDxwYXRoIGQ9Ik0gMCAwIEMgMCAwIDAgMCAwIDAgQyAwIC01MCA1MCAtNDAgOTA
+                            - gLTQwIEMgMTIwIC00MCAxMjAgMCA5MCAwIEwgMzAgMCBDIDEwIDAgMCAwIDAgMzA
+                            - iIGZpbGw9IiM1MGQxYjMiLz4KICAgIDxwYXRoIGQ9Ik0gMjAgMTAwIEMgLTEwIDM
+                            - wIC0xMCAwIDEwMCAxMCBDIDYwIDEwIDUwIDIwIDUwIDMwIEMgNTAgNDAgNTAgNjA
+                            - gNjAgOTAgQyA3MCAxMjAgMzAgMTMwIDIwIDEwMCBaIiBmaWxsPSIjMWI5ZWU2Ii8
+                            - +CiAgICA8dGV4dCB4PSIwIiB5PSI1MCIgZm9udC1zaXplPSI2MCIgZHk9IjAiIGZ
+                            - vbnQtZmFtaWx5PSJTYW5zIFNlcmlmIiBmaWxsPSIjMDAwMDAwIj4KICAgICAgPHR
+                            - zcGFuIHg9IjUlIiBkeT0iMS44ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGU
+                            - iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZMVUlEIEJPTkQ8L3RzcGFuPgogICAgICA
+                            - 8dHNwYW4geD0iNSUiIGR5PSIxLjJlbSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGR
+                            - sZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI0OCI+TGVuZGVyPC9
+                            - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS4yZW0iIGRvbWluYW50LWJ
+                            - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJvbmQgaWQ6PC9
+                            - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMi40ZW0iIGRvbWluYW50LWJ
+                            - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0
+                            - iMjAiPjUwYTQwMGMyZmFkNjVjYTM3ZGRkOTlhYjQ3MzQ2ODQ1ZDUyOTJkY2QxMGQ
+                            - 3YzQ4M2Q0ZGQ4NWYwYjgyOGFlYTM8L3RzcGFuPgogICAgPC90ZXh0PgogIDwvc3Z
+                            - nPgoKCiAg
+                            mediaType: image/svg+xml
+                            name: Fluid tokens bond
+                            twitter: https://twitter.com/fluidtokens
+                        version: 2
+                    token_registry_metadata: null
+              schema:
+                $ref: '#/components/schemas/AssetInfo'
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Native asset information
+      tags:
+      - Assets
+  /assets/{asset}/addresses:
+    get:
+      deprecated: false
+      description: Returns a list of addresses which hold some amount of the specified
+        asset
+      operationId: asset_addresses
+      parameters:
+      - description: Native asset (concatenation of hex encoded policy ID and hex
+          encoded asset name)
+        explode: false
+        in: path
+        name: asset
+        required: true
+        schema:
+          example: 29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - addr_1vpvz8req5wn4serhfsg9ha9wg7rf7jsr5hels2llkacq5gcq4utja
+                  - addr_1wzdtu0djc76qyqak9cj239udezj2544nyk3ksmfqvaksv7c9xanpg
+              schema:
+                items:
+                  type: string
+                type: array
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "500":
+          description: Internal server error
+      summary: Native asset addresses
+      tags:
+      - Assets
+  /assets/{asset}/txs:
+    get:
+      deprecated: false
+      description: "Returns a list of transactions which moved, minted or burned the\
+        \ specified asset"
+      operationId: asset_txs
+      parameters:
+      - description: Native asset (concatenation of hex encoded policy ID and hex
+          encoded asset name)
+        explode: false
+        in: path
+        name: asset
+        required: true
+        schema:
+          example: 29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        deprecated: false
+        description: Return only transactions on or after a specific block height
+        explode: true
+        in: query
+        name: from_height
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        deprecated: false
+        description: The order in which the results are sorted (by block height)
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - block_height: 629786
+                    epoch_no: 51
+                    tx_hash: 968fd498b4ae9853a0112c834b1814d0ff916abe68ef920c9b61c93cbb865b55
+              schema:
+                items:
+                  $ref: '#/components/schemas/AssetTx'
+                type: array
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "500":
+          description: Internal server error
+      summary: Native asset transaction
+      tags:
+      - Assets
+  /assets/{asset}/updates:
+    get:
+      deprecated: false
+      description: Returns a list of transactions which minted or burned the specified
+        asset
+      operationId: asset_updates
+      parameters:
+      - description: Native asset (concatenation of hex encoded policy ID and hex
+          encoded asset name)
+        explode: false
+        in: path
+        name: asset
+        required: true
+        schema:
+          example: 29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        deprecated: false
+        description: The order in which the results are sorted (by block height)
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - tx_hash: 9ae767cf8b7de74dd604c3b4c890891a5462be287f4f1a1ce64384e6fdac896d
+                    mint_amount: 9223372036854776000
+                    block_timestamp: 1648827044
+                    metadata: []
+              schema:
+                items:
+                  $ref: '#/components/schemas/MintingTx'
+                type: array
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Native asset updates
+      tags:
+      - Assets
+  /assets/policy/{policy}:
+    get:
+      deprecated: false
+      description: Returns information about the minting policy of assets
+      operationId: policy_info
+      parameters:
+      - deprecated: false
+        description: Hex encoded policy ID
+        explode: false
+        in: path
+        name: policy
+        required: true
+        schema:
+          type: string
+        style: simple
+      - deprecated: false
+        description: The max number of results per page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          type: integer
+        style: form
+      - deprecated: false
+        description: The page number for the results
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                CIP-68 example:
+                  value:
+                  - asset_name: 0014df104152494741544f6b656e
+                    asset_name_ascii: \000\337ARIGATOken
+                    fingerprint: asset1jwvdcx0r4c45n2lah2yydx9z2y0k2e3rdtlzyw
+                    first_mint_tx: cbb242170d540d59f3904d26aa4d849e321b554c2e14084bcc1786ea7be81564
+                    first_mint_time: 1668470400
+                    mint_tx_count: 1
+                    burn_tx_count: 1
+                    total_supply: 0
+                    asset_standards:
+                      cip25_metadata: null
+                      cip68_metadata:
+                        purpose: user_ft
+                        version: 1
+                        metadata:
+                          decimals: "0"
+                          description: A token for Cardano_Waifus project
+                          logo: ipfs://QmcxbFm56ymFSHoq2UDm2d7NkGRj7ueMMoZBnUorWWoWTF
+                          name: ARIGATOken
+                          ticker: ARIGATO
+                          url: https://cardanowaifus.digital
+                        extra: null
+                    latest_mint_tx_metadata: null
+                    token_registry_metadata: null
+                CIP-25 example:
+                  value:
+                  - asset_name: c39b11e90cb2a5367d85b80e81bd9403f36b22ea0a6eed7f6fdc0872af1517c1
+                    asset_name_ascii: "\\303\\233\x11\\351\f\\262\\2456}\\205\\270\x0e\
+                      \\201\\275\\224\x03\\363k\"\\352\nn\\355\x7fo\\334\br\\257\x15\
+                      \x17\\301"
+                    fingerprint: asset1rgt2g7cfm2yvtwwaxfhtxcnxjh4jajt06nma0y
+                    first_mint_tx: 07c1971ab8f5a575ff67f79c5a50632f2f964373b0c249f01cf86b51ca4e559c
+                    first_mint_time: 1673222400
+                    mint_tx_count: 1
+                    burn_tx_count: 1
+                    total_supply: 0
+                    asset_standards:
+                      cip25_metadata:
+                        BondId: c39b11e90cb2a5367d85b80e81bd9403f36b22ea0a6eed7f6fdc0872af1517c1
+                        Policy: 4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091
+                        image: "image/svg+xml;base64,CgogIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSItMzAwIC0xMDAgNzAwIDEwMDAiPgogICAgPHJlY3QgeD0iLTI5MCIgeT0iLTkwIiB3aWR0aD0iNjkwIiBoZWlnaHQ9Ijk5MCIgc3Ryb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjJweCIgZmlsbD0id2hpdGUiLz4KICAgIDxwYXRoIGQ9Ik0gMCAwIEMgMCAwIDAgMCAwIDAgQyAwIC01MCA1MCAtNDAgOTAgLTQwIEMgMTIwIC00MCAxMjAgMCA5MCAwIEwgMzAgMCBDIDEwIDAgMCAwIDAgMzAiIGZpbGw9IiM1MGQxYjMiLz4KICAgIDxwYXRoIGQ9Ik0gMjAgMTAwIEMgLTEwIDMwIC0xMCAwIDEwMCAxMCBDIDYwIDEwIDUwIDIwIDUwIDMwIEMgNTAgNDAgNTAgNjAgNjAgOTAgQyA3MCAxMjAgMzAgMTMwIDIwIDEwMCBaIiBmaWxsPSIjMWI5ZWU2Ii8+CiAgICA8dGV4dCB4PSIwIiB5PSI1MCIgZm9udC1zaXplPSI2MCIgZHk9IjAiIGZvbnQtZmFtaWx5PSJTYW5zIFNlcmlmIiBmaWxsPSIjMDAwMDAwIj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS44ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZMVUlEIEJPTkQ8L3RzcGFuPgogICAgICA8dHNwYW4geD0iNSUiIGR5PSIxLjJlbSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI0OCI+TGVuZGVyPC90c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS4yZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJvbmQgaWQ6PC90c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMi40ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMjAiPmMzOWIxMWU5MGNiMmE1MzY3ZDg1YjgwZTgxYmQ5NDAzZjM2YjIyZWEwYTZlZWQ3ZjZmZGMwODcyYWYxNTE3YzE8L3RzcGFuPgogICAgPC90ZXh0PgogIDwvc3ZnPgoKCiAg"
+                        mediaType: image/svg+xml
+                        name: Fluid tokens bond
+                        twitter: https://twitter.com/fluidtokens
+                    latest_mint_tx_metadata:
+                      "7":
+                        AMOUNT: "30000000"
+                        CURRENCYASSET: "69555344"
+                        CURRENCYID: f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880
+                        HOURS: "1"
+                        ICURRENCYASSET: "69555344"
+                        ICURRENCYID: f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880
+                        INTEREST: "20000000"
+                        LENDER: 1c471b31ea0b04c652bd8f76b239aea5f57139bdc5a2b28ab1e69175
+                      "721":
+                        "0x4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091":
+                          "0xc39b11e90cb2a5367d85b80e81bd9403f36b22ea0a6eed7f6fdc0872af1517c1":
+                            BondId: c39b11e90cb2a5367d85b80e81bd9403f36b22ea0a6eed7f6fdc0872af1517c1
+                            Policy: 4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091
+                            image:
+                            - "image/svg+xml;base64,CgogIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3J"
+                            - nLzIwMDAvc3ZnIiB2aWV3Qm94PSItMzAwIC0xMDAgNzAwIDEwMDAiPgogICAgPHJ
+                            - lY3QgeD0iLTI5MCIgeT0iLTkwIiB3aWR0aD0iNjkwIiBoZWlnaHQ9Ijk5MCIgc3R
+                            - yb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjJweCIgZmlsbD0id2hpdGUiLz4KICA
+                            - gIDxwYXRoIGQ9Ik0gMCAwIEMgMCAwIDAgMCAwIDAgQyAwIC01MCA1MCAtNDAgOTA
+                            - gLTQwIEMgMTIwIC00MCAxMjAgMCA5MCAwIEwgMzAgMCBDIDEwIDAgMCAwIDAgMzA
+                            - iIGZpbGw9IiM1MGQxYjMiLz4KICAgIDxwYXRoIGQ9Ik0gMjAgMTAwIEMgLTEwIDM
+                            - wIC0xMCAwIDEwMCAxMCBDIDYwIDEwIDUwIDIwIDUwIDMwIEMgNTAgNDAgNTAgNjA
+                            - gNjAgOTAgQyA3MCAxMjAgMzAgMTMwIDIwIDEwMCBaIiBmaWxsPSIjMWI5ZWU2Ii8
+                            - +CiAgICA8dGV4dCB4PSIwIiB5PSI1MCIgZm9udC1zaXplPSI2MCIgZHk9IjAiIGZ
+                            - vbnQtZmFtaWx5PSJTYW5zIFNlcmlmIiBmaWxsPSIjMDAwMDAwIj4KICAgICAgPHR
+                            - zcGFuIHg9IjUlIiBkeT0iMS44ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGU
+                            - iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZMVUlEIEJPTkQ8L3RzcGFuPgogICAgICA
+                            - 8dHNwYW4geD0iNSUiIGR5PSIxLjJlbSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGR
+                            - sZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI0OCI+TGVuZGVyPC9
+                            - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS4yZW0iIGRvbWluYW50LWJ
+                            - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJvbmQgaWQ6PC9
+                            - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMi40ZW0iIGRvbWluYW50LWJ
+                            - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0
+                            - iMjAiPmMzOWIxMWU5MGNiMmE1MzY3ZDg1YjgwZTgxYmQ5NDAzZjM2YjIyZWEwYTZ
+                            - lZWQ3ZjZmZGMwODcyYWYxNTE3YzE8L3RzcGFuPgogICAgPC90ZXh0PgogIDwvc3Z
+                            - nPgoKCiAg
+                            mediaType: image/svg+xml
+                            name: Fluid tokens bond
+                            twitter: https://twitter.com/fluidtokens
+                        version: 2
+                    token_registry_metadata: null
+                  - asset_name: 2744c703cb3118a1777b62c19d47d0a824ebbdeeecbc92dda548dda186746303
+                    asset_name_ascii: "'D\\307\x03\\3131\x18\\241w{b\\301\\235G\\\
+                      320\\250$\\353\\275\\356\\354\\274\\222\\335\\245H\\335\\241\\\
+                      206tc\x03"
+                    fingerprint: asset1ecatkdrtldcvmnff87c2q6h35mnj6yzs600cnl
+                    first_mint_tx: 25d208c3e4f77cd42fdad0fcc960a4b9914f392418aed4d3161c3fd4a0e1802a
+                    first_mint_time: 1673308800
+                    mint_tx_count: 1
+                    burn_tx_count: 1
+                    total_supply: 0
+                    asset_standards:
+                      cip25_metadata:
+                        BondId: 2744c703cb3118a1777b62c19d47d0a824ebbdeeecbc92dda548dda186746303
+                        Policy: 4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091
+                        image: "image/svg+xml;base64,CgogIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSItMzAwIC0xMDAgNzAwIDEwMDAiPgogICAgPHJlY3QgeD0iLTI5MCIgeT0iLTkwIiB3aWR0aD0iNjkwIiBoZWlnaHQ9Ijk5MCIgc3Ryb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjJweCIgZmlsbD0id2hpdGUiLz4KICAgIDxwYXRoIGQ9Ik0gMCAwIEMgMCAwIDAgMCAwIDAgQyAwIC01MCA1MCAtNDAgOTAgLTQwIEMgMTIwIC00MCAxMjAgMCA5MCAwIEwgMzAgMCBDIDEwIDAgMCAwIDAgMzAiIGZpbGw9IiM1MGQxYjMiLz4KICAgIDxwYXRoIGQ9Ik0gMjAgMTAwIEMgLTEwIDMwIC0xMCAwIDEwMCAxMCBDIDYwIDEwIDUwIDIwIDUwIDMwIEMgNTAgNDAgNTAgNjAgNjAgOTAgQyA3MCAxMjAgMzAgMTMwIDIwIDEwMCBaIiBmaWxsPSIjMWI5ZWU2Ii8+CiAgICA8dGV4dCB4PSIwIiB5PSI1MCIgZm9udC1zaXplPSI2MCIgZHk9IjAiIGZvbnQtZmFtaWx5PSJTYW5zIFNlcmlmIiBmaWxsPSIjMDAwMDAwIj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS44ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZMVUlEIEJPTkQ8L3RzcGFuPgogICAgICA8dHNwYW4geD0iNSUiIGR5PSIxLjJlbSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI0OCI+TGVuZGVyPC90c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS4yZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJvbmQgaWQ6PC90c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMi40ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMjAiPjI3NDRjNzAzY2IzMTE4YTE3NzdiNjJjMTlkNDdkMGE4MjRlYmJkZWVlY2JjOTJkZGE1NDhkZGExODY3NDYzMDM8L3RzcGFuPgogICAgPC90ZXh0PgogIDwvc3ZnPgoKCiAg"
+                        mediaType: image/svg+xml
+                        name: Fluid tokens bond
+                        twitter: https://twitter.com/fluidtokens
+                    latest_mint_tx_metadata:
+                      "7":
+                        AMOUNT: "20000000"
+                        CURRENCYASSET: "69555344"
+                        CURRENCYID: f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880
+                        HOURS: "1"
+                        ICURRENCYASSET: ""
+                        ICURRENCYID: ""
+                        INTEREST: "20000000"
+                        LENDER: 87beb2237d63ff03bc842950a88959d69abbe29e8adea8176b32fd69
+                      "721":
+                        "0x4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091":
+                          "0x2744c703cb3118a1777b62c19d47d0a824ebbdeeecbc92dda548dda186746303":
+                            BondId: 2744c703cb3118a1777b62c19d47d0a824ebbdeeecbc92dda548dda186746303
+                            Policy: 4aef6e0795e1f8241eb19ade6221a85d610523714e4d59d4e9095091
+                            image:
+                            - "image/svg+xml;base64,CgogIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3J"
+                            - nLzIwMDAvc3ZnIiB2aWV3Qm94PSItMzAwIC0xMDAgNzAwIDEwMDAiPgogICAgPHJ
+                            - lY3QgeD0iLTI5MCIgeT0iLTkwIiB3aWR0aD0iNjkwIiBoZWlnaHQ9Ijk5MCIgc3R
+                            - yb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjJweCIgZmlsbD0id2hpdGUiLz4KICA
+                            - gIDxwYXRoIGQ9Ik0gMCAwIEMgMCAwIDAgMCAwIDAgQyAwIC01MCA1MCAtNDAgOTA
+                            - gLTQwIEMgMTIwIC00MCAxMjAgMCA5MCAwIEwgMzAgMCBDIDEwIDAgMCAwIDAgMzA
+                            - iIGZpbGw9IiM1MGQxYjMiLz4KICAgIDxwYXRoIGQ9Ik0gMjAgMTAwIEMgLTEwIDM
+                            - wIC0xMCAwIDEwMCAxMCBDIDYwIDEwIDUwIDIwIDUwIDMwIEMgNTAgNDAgNTAgNjA
+                            - gNjAgOTAgQyA3MCAxMjAgMzAgMTMwIDIwIDEwMCBaIiBmaWxsPSIjMWI5ZWU2Ii8
+                            - +CiAgICA8dGV4dCB4PSIwIiB5PSI1MCIgZm9udC1zaXplPSI2MCIgZHk9IjAiIGZ
+                            - vbnQtZmFtaWx5PSJTYW5zIFNlcmlmIiBmaWxsPSIjMDAwMDAwIj4KICAgICAgPHR
+                            - zcGFuIHg9IjUlIiBkeT0iMS44ZW0iIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGU
+                            - iIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZMVUlEIEJPTkQ8L3RzcGFuPgogICAgICA
+                            - 8dHNwYW4geD0iNSUiIGR5PSIxLjJlbSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGR
+                            - sZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI0OCI+TGVuZGVyPC9
+                            - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMS4yZW0iIGRvbWluYW50LWJ
+                            - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJvbmQgaWQ6PC9
+                            - 0c3Bhbj4KICAgICAgPHRzcGFuIHg9IjUlIiBkeT0iMi40ZW0iIGRvbWluYW50LWJ
+                            - hc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0
+                            - iMjAiPjI3NDRjNzAzY2IzMTE4YTE3NzdiNjJjMTlkNDdkMGE4MjRlYmJkZWVlY2J
+                            - jOTJkZGE1NDhkZGExODY3NDYzMDM8L3RzcGFuPgogICAgPC90ZXh0PgogIDwvc3Z
+                            - nPgoKCiAg
+                            mediaType: image/svg+xml
+                            name: Fluid tokens bond
+                            twitter: https://twitter.com/fluidtokens
+                        version: 2
+                    token_registry_metadata: null
+              schema:
+                items:
+                  $ref: '#/components/schemas/AssetInfo'
+                type: array
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Minting policy information
+      tags:
+      - Assets
+  /assets/policy/{policy}/addresses:
+    get:
+      deprecated: false
+      description: Returns a list of addresses which hold some of an asset of the
+        given policy ID
+      operationId: policy_addresses
+      parameters:
+      - deprecated: false
+        description: Hex encoded Policy ID
+        explode: false
+        in: path
+        name: policy
+        required: true
+        schema:
+          type: string
+        style: simple
+      - deprecated: false
+        description: The max number of results per page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          type: integer
+        style: form
+      - deprecated: false
+        description: The page number for the results
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - addr_1vpvz8req5wn4serhfsg9ha9wg7rf7jsr5hels2llkacq5gcq4utja
+                  - addr_1wzdtu0djc76qyqak9cj239udezj2544nyk3ksmfqvaksv7c9xanpg
+              schema:
+                items:
+                  type: string
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Minting policy addresses
+      tags:
+      - Assets
+  /assets/policy/{policy}/txs:
+    get:
+      deprecated: false
+      description: Returns transactions in which an address receives an asset of a
+        policy
+      operationId: policy_txs
+      parameters:
+      - deprecated: false
+        description: Hex encoded policy ID
+        explode: false
+        in: path
+        name: policy
+        required: true
+        schema:
+          type: string
+        style: simple
+      - deprecated: false
+        description: Return only transactions after supplied block height
+        explode: true
+        in: query
+        name: from_height
+        required: false
+        schema:
+          format: int64
+          type: integer
+        style: form
+      - deprecated: false
+        description: The max number of results per page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          type: integer
+        style: form
+      - deprecated: false
+        description: The page number for the results
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - deprecated: false
+        description: The order in which the results are sorted (by block height)
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AssetTx'
+                type: array
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "500":
+          description: Internal server error
+      summary: Minting policy transactions
+      tags:
+      - Assets
+  /assets/policy/{policy}/utxos:
+    get:
+      deprecated: false
+      description: "Returns UTxOs which contain assets of a policy ID, along with\
+        \ the asset names and amounts"
+      operationId: policy_utxos
+      parameters:
+      - deprecated: false
+        description: Hex encoded policy ID
+        explode: false
+        in: path
+        name: policy
+        required: true
+        schema:
+          type: string
+        style: simple
+      - deprecated: false
+        description: The max number of results per page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          type: integer
+        style: form
+      - deprecated: false
+        description: The page number for the results
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PolicyUtxo'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Minting policy UTxOs
+      tags:
+      - Assets
+  /datum/{datum_hash}:
+    get:
+      deprecated: false
+      description: "Returns the datum corresponding to the specified datum hash, if\
+        \ the datum has been seen on-chain"
+      operationId: lookup_datum
+      parameters:
+      - description: Hex encoded datum hash
+        explode: false
+        in: path
+        name: datum_hash
+        required: true
+        schema:
+          example: 432cb73420839fb517533c365d7ec125c457ea4ba5c0349be81be6796d52ef3b
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    bytes: 1a00278530
+                    json:
+                      int: 2590000
+              schema:
+                $ref: '#/components/schemas/Datum'
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Datum of a datum hash
+      tags:
+      - Datum
+  /epochs/current:
+    get:
+      deprecated: false
+      description: Returns information about the current epoch
+      operationId: current_epoch
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    epoch_no: 51
+                    fees: "2491613381"
+                    tx_count: 7297
+                    blk_count: 13717
+                    start_time: 1676073604
+              schema:
+                $ref: '#/components/schemas/CurrentEpochInfo'
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Current epoch of the network
+      tags:
+      - Epochs
+  /epochs/{epoch_no}/info:
+    get:
+      deprecated: false
+      description: Returns information about the requested epoch
+      operationId: epoch_info
+      parameters:
+      - description: Epoch height (number)
+        explode: false
+        in: path
+        name: epoch_no
+        required: true
+        schema:
+          minimum: 0
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    epoch_no: 36
+                    fees: "8308727733"
+                    tx_count: 18799
+                    blk_count: 21052
+                    start_time: 1669593614
+                    end_time: 1670025570
+              schema:
+                $ref: '#/components/schemas/EpochInfo'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Epoch details
+      tags:
+      - Epochs
+  /pools:
+    get:
+      deprecated: false
+      description: Returns a list of currently registered stake pools
+      operationId: list_pools
+      parameters:
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - pool_id_bech32: pool12584mjtgz3fhgpx823qht56gycnfnezg6aqqthazv4qdxkd5c46
+                    ticker: DOLCA
+                  - pool_id_bech32: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+                    ticker: CHOCO
+              schema:
+                items:
+                  $ref: '#/components/schemas/PoolListInfo'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Registered stake pools
+      tags:
+      - Pools
+  /pools/{pool_id}/blocks:
+    get:
+      deprecated: false
+      description: Return information about blocks minted by a given pool for all
+        epochs (or just epoch `epoch_no` if provided)
+      operationId: pool_blocks
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        deprecated: false
+        description: Epoch number to fetch results for
+        explode: true
+        in: query
+        name: epoch_no
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        deprecated: false
+        description: The order in which the results are sorted (by absolute slot)
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - epoch_no: 331
+                    epoch_slot: 247198
+                    abs_slot: 57875998
+                    block_height: 7099157
+                    block_hash: 25c48307d94b1d6b98c50482a0a36c6d104c66a5186ce73eac7e9fe4e34a1e4b
+                    block_time: 1649442289
+                  - epoch_no: 331
+                    epoch_slot: 271486
+                    abs_slot: 57900286
+                    block_height: 7100338
+                    block_hash: b00aaff6fd95e9718748ef16a6f1787af95970bf8da072c1031f569783001997
+                    block_time: 1649466577
+              schema:
+                items:
+                  $ref: '#/components/schemas/PoolBlock'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Stake pool blocks
+      tags:
+      - Pools
+  /pools/{pool_id}/delegators:
+    get:
+      deprecated: false
+      description: Returns a list of delegators of the specified pool
+      operationId: pool_delegators
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - stake_address: stake1uyxylkzz6qcmu823tpfvq2kv4v0eejrh6w3qcfl2t3ax4acmdtchp
+                    amount: 104694974790
+                    active_epoch_no: 288
+                    latest_delegation_tx_hash: 7feeb8988ac7ae488dacf189dd6cb2f52173692dfb45603942fbe8b7a6ccd40b
+                  - stake_address: stake1uyztgnymq9pktsjw7ae9csea4xueymap54gg252wyvsgv8cxscnaz
+                    amount: 4128157247
+                    active_epoch_no: 293
+                    latest_delegation_tx_hash: e8d1e0a2c9e1d9a33b79db3d4e997a2e797ade35d81ed993936bba409e7c9a1f
+              schema:
+                items:
+                  $ref: '#/components/schemas/DelegatorInfo'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Stake pool delegators
+      tags:
+      - Pools
+  /pools/{pool_id}/history:
+    get:
+      deprecated: false
+      description: Returns per-epoch information about the specified pool (or just
+        epoch `epoch_no`)
+      operationId: pool_history
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      - allowEmptyValue: true
+        deprecated: false
+        description: Epoch number to fetch results for
+        explode: true
+        in: query
+        name: epoch_no
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: The max number of results per pagination page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        description: Pagination page number to show results for
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - allowEmptyValue: true
+        deprecated: false
+        description: The order in which the results are sorted (by epoch number)
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - epoch_no: 384
+                    active_stake: 3850078783520
+                    active_stake_pct: "0.01517945984844733700"
+                    saturation_pct: "5.4500"
+                    block_cnt: 0
+                    delegator_cnt: 23
+                    margin: 0
+                    fixed_cost: 340000000
+                    pool_fees: 0
+                    deleg_rewards: 0
+                    epoch_ros: "0"
+                  - epoch_no: 385
+                    active_stake: 3851856595953
+                    active_stake_pct: "0.01517156647812579800"
+                    saturation_pct: "5.4500"
+                    block_cnt: 3
+                    delegator_cnt: 23
+                    margin: 0
+                    fixed_cost: 340000000
+                    pool_fees: 340000000
+                    deleg_rewards: 1447424779
+                    epoch_ros: "2.78058595"
+              schema:
+                items:
+                  $ref: '#/components/schemas/PoolHistory'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Stake pool history
+      tags:
+      - Pools
+  /pools/{pool_id}/info:
+    get:
+      deprecated: false
+      description: Returns current information about the specified pool
+      operationId: pool_info
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    pool_id_bech32: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+                    pool_id_hex: 552d7f65e42fdc4ed602a657b85bd7623a592d21e5dcf7b045132da8
+                    active_epoch_no: 290
+                    vrf_key_hash: 076102096f5fc37a47ff14390f7320c76ea769183d06881d53dc4ea1be51acae
+                    margin: 0
+                    fixed_cost: 340000000
+                    pledge: 10000000000
+                    reward_addr: stake1uxtdm5q9j89mmme0l6jt9rsap8cn3vjy3eflptx34s2645ge7r9gp
+                    owners:
+                    - stake1uxtdm5q9j89mmme0l6jt9rsap8cn3vjy3eflptx34s2645ge7r9gp
+                    relays:
+                    - dns: null
+                      srv: null
+                      ipv4: 202.182.106.104
+                      ipv6: null
+                      port: 6000
+                    meta_url: https://git.io/J0eoF
+                    meta_hash: 63c1b74c5489659d8ec374fa9f22f3e185c5ac458ecc69fdc324ba3bbe2c5093
+                    meta_json:
+                      name: CHOCO Stake Pool
+                      ticker: CHOCO
+                      homepage: https://twitter.com/choco_stake
+                      description: cardanoという次世代の分散システムに貢献します。CHOCO Stake Poolをよろしくお願いします。
+                    pool_status: registered
+                    retiring_epoch: null
+                    op_cert: cdac991e5a547c86fe869b37eb58c77cc3804d2e592200c835da0b3dbfe8e763
+                    op_cert_counter: 7
+                    active_stake: 3847126072870
+                    sigma: "0.00015093541821247124"
+                    block_count: 307
+                    live_pledge: 38784976226
+                    live_stake: 3848841013319
+                    live_delegators: 24
+                    live_saturation: "5.4200"
+              schema:
+                $ref: '#/components/schemas/PoolInfo'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Stake pool details
+      tags:
+      - Pools
+  /pools/{pool_id}/metadata:
+    get:
+      deprecated: false
+      description: Returns the metadata declared by a specific pool
+      operationId: pool_metadata
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    pool_id_bech32: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+                    meta_url: https://git.io/J0eoF
+                    meta_hash: 63c1b74c5489659d8ec374fa9f22f3e185c5ac458ecc69fdc324ba3bbe2c5093
+                    meta_json:
+                      name: CHOCO Stake Pool
+                      ticker: CHOCO
+                      homepage: https://twitter.com/choco_stake
+                      description: cardanoという次世代の分散システムに貢献します。CHOCO Stake Poolをよろしくお願いします。
+              schema:
+                $ref: '#/components/schemas/PoolMetadata'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Stake pool metadata
+      tags:
+      - Pools
+  /pools/{pool_id}/relays:
+    get:
+      deprecated: false
+      description: Returns a list of relays declared by the specified pool
+      operationId: pool_relays
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - pool_id_bech32: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+                    relays:
+                    - dns: null
+                      srv: null
+                      ipv4: 202.182.106.104
+                      ipv6: null
+                      port: 6000
+              schema:
+                items:
+                  $ref: '#/components/schemas/PoolRelay'
+                type: array
+          description: ""
+        "500":
+          description: Internal server error
+      summary: Stake pool relays
+      tags:
+      - Pools
+  /pools/{pool_id}/updates:
+    get:
+      deprecated: false
+      description: Returns a list of updates relating to the specified pool
+      operationId: pool_updates
+      parameters:
+      - description: Bech32 encoded pool ID
+        explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - tx_hash: 58011f2d795af54ab076320d5092a7989efd451eb39c5c64794c7b5eccd9da97
+                    block_time: 1629034536
+                    pool_id_bech32: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+                    pool_id_hex: 552d7f65e42fdc4ed602a657b85bd7623a592d21e5dcf7b045132da8
+                    active_epoch_no: 286
+                    vrf_key_hash: 076102096f5fc37a47ff14390f7320c76ea769183d06881d53dc4ea1be51acae
+                    margin: 0
+                    fixed_cost: 340000000
+                    pledge: 10000000000
+                    reward_addr: stake1uxtdm5q9j89mmme0l6jt9rsap8cn3vjy3eflptx34s2645ge7r9gp
+                    owners:
+                    - stake1uxtdm5q9j89mmme0l6jt9rsap8cn3vjy3eflptx34s2645ge7r9gp
+                    relays:
+                    - dns: null
+                      srv: null
+                      ipv4: 139.180.198.13
+                      ipv6: null
+                      port: 6000
+                    meta_url: https://git.io/J0eoF
+                    meta_hash: 563af2ed89859d9eb1976706f86285f7b5c8f51a3fa354b185b8f86797416b97
+                    meta_json: null
+                    pool_status: registered
+                    retiring_epoch: null
+              schema:
+                items:
+                  $ref: '#/components/schemas/PoolUpdate'
+                type: array
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Stake pool updates
+      tags:
+      - Pools
+  /scripts/{script_hash}:
+    get:
+      deprecated: false
+      description: "Returns the script corresponding to the specified script hash,\
+        \ if seen on-chain"
+      operationId: script_by_hash
+      parameters:
+      - description: Hex encoded script hash
+        explode: false
+        in: path
+        name: script_hash
+        required: true
+        schema:
+          example: 3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    type: plutusv2
+                    hash: 3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712
+                    bytes: "480100002221200101"
+                    json: null
+              schema:
+                $ref: '#/components/schemas/Script'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Script of a script hash
+      tags:
+      - Scripts
+  /transactions:
+    post:
+      deprecated: false
+      description: "Submit a signed and serialized transaction to the network. A transaction\
+        \ submited with this endpoint will be [monitored by Maestro](https://docs.gomaestro.org/docs/Getting-started/Monitor-a-transaction)."
+      operationId: maestro_tx_submit
+      requestBody:
+        content:
+          application/cbor:
+            schema:
+              type: string
+        description: CBOR encoded transaction
+        required: true
+      responses:
+        "202":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: ""
+        "400":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Bad Request
+        "415":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Unsupported Media Type
+        "500":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Server Error
+      summary: Submit transaction
+      tags:
+      - Transactions
+  /submit/tx:
+    post:
+      deprecated: false
+      description: "Submit a signed and serialized transaction to the network. Interaction\
+        \ with this endpoint is identical to IOG's [Cardano Submit API](https://input-output-hk.github.io/cardano-rest/submit-api/)\
+        \ and will not be monitored by Maestro. See `POST /transactions` for transaction\
+        \ monitoring."
+      operationId: iog_tx_submit
+      requestBody:
+        content:
+          application/cbor:
+            schema:
+              type: string
+        description: CBOR encoded transaction
+        required: true
+      responses:
+        "202":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: ""
+        "400":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Bad Request
+        "500":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Server Error
+      summary: Submit transaction
+      tags:
+      - Transactions
+  /transactions/{tx_hash}/cbor:
+    get:
+      deprecated: false
+      description: Returns hex-encoded CBOR bytes of a transaction
+      operationId: tx_cbor_by_tx_hash
+      parameters:
+      - description: Hex encoded transaction hash
+        explode: false
+        in: path
+        name: tx_hash
+        required: true
+        schema:
+          example: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    cbor: 84a4008382582038dc2ac77bac948bdc623be...
+              schema:
+                $ref: '#/components/schemas/TxCbor'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: CBOR bytes of a transaction
+      tags:
+      - Transactions
+  /transactions/{tx_hash}/outputs/{index}/address:
+    get:
+      deprecated: false
+      description: Returns the address specified in the given transaction output
+      operationId: address_by_txo
+      parameters:
+      - description: Hex encoded transaction hash
+        explode: false
+        in: path
+        name: tx_hash
+        required: true
+        schema:
+          example: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+          type: string
+        style: simple
+      - description: Transaction output index
+        explode: false
+        in: path
+        name: index
+        required: true
+        schema:
+          minimum: 0
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    address: addr1wxgg25t3tk30jqzl2elqz94lzgmr8a9c9m5z902ds5sjh0g7uaj8z
+              schema:
+                $ref: '#/components/schemas/UtxoAddress'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Address of a transaction output reference
+      tags:
+      - Transactions
+  /transactions/{tx_hash}/outputs/{index}/utxo:
+    get:
+      deprecated: false
+      description: Returns the specified transaction output of a transaction output
+        reference
+      operationId: utxo_by_txo_ref
+      parameters:
+      - description: Hex encoded transaction hash
+        explode: false
+        in: path
+        name: tx_hash
+        required: true
+        schema:
+          example: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+          type: string
+        style: simple
+      - description: Transaction output index
+        explode: false
+        in: path
+        name: index
+        required: true
+        schema:
+          minimum: 0
+          type: integer
+        style: simple
+      - allowEmptyValue: true
+        description: Try find and include the corresponding datums for datum hashes
+        explode: true
+        in: query
+        name: resolve_datums
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - allowEmptyValue: true
+        description: Include the CBOR encodings of the transaction outputs in the
+          response
+        explode: true
+        in: query
+        name: with_cbor
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    tx_hash: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+                    index: 0
+                    assets:
+                    - unit: lovelace
+                      quantity: 7280082022
+                    - unit: 34250edd1e9836f5378702fbf9416b709bc140e04f668cc355208518#4154414441636f696e
+                      quantity: 10824
+                    address: addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc
+                    datum:
+                      type: inline
+                      hash: 432cb73420839fb517533c365d7ec125c457ea4ba5c0349be81be6796d52ef3b
+                      bytes: 1a00278530
+                      json:
+                        int: 2590000
+                    reference_script:
+                      type: plutusv2
+                      hash: 3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712
+                      bytes: "480100002221200101"
+                      json: null
+              schema:
+                $ref: '#/components/schemas/Utxo'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Transaction output of an output reference
+      tags:
+      - Transactions
+components:
+  parameters:
+    stake_address:
+      description: Bech32 encoded stake address
+      explode: false
+      in: path
+      name: stake_address
+      required: true
+      schema:
+        example: stake1u9w504hwl7sv6ewe72kxx45pzs37zq4qr4tvfqj3n2rqzvseuxpcf
+        type: string
+      style: simple
+    address:
+      description: Bech32 encoded address
+      explode: false
+      in: path
+      name: address
+      required: true
+      schema:
+        example: addr1qyl9ez2532trgydh5cny3ww72ygw8vugkvu98ln5x2zfgsxyf0yy00uzuxy7aldn75u7r8p99f4s0m93vgr4j7zz7pyqdg24wq
+        type: string
+      style: simple
+    policy_id:
+      description: Hex encoded native asset policy ID
+      explode: false
+      in: path
+      name: policy_id
+      required: true
+      schema:
+        example: 29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c6
+        type: string
+      style: simple
+    asset:
+      description: Native asset (concatenation of hex encoded policy ID and hex encoded
+        asset name)
+      explode: false
+      in: path
+      name: asset
+      required: true
+      schema:
+        example: 29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e
+        type: string
+      style: simple
+    datum_hash:
+      description: Hex encoded datum hash
+      explode: false
+      in: path
+      name: datum_hash
+      required: true
+      schema:
+        example: 432cb73420839fb517533c365d7ec125c457ea4ba5c0349be81be6796d52ef3b
+        type: string
+      style: simple
+    epoch_no:
+      description: Epoch height (number)
+      explode: false
+      in: path
+      name: epoch_no
+      required: true
+      schema:
+        minimum: 0
+        type: integer
+      style: simple
+    pool_id:
+      description: Bech32 encoded pool ID
+      explode: false
+      in: path
+      name: pool_id
+      required: true
+      schema:
+        example: pool125kh7e0y9lwya4sz5etmsk7hvga9jtfpuhw00vz9zvk6sh8xh5r
+        type: string
+      style: simple
+    script_hash:
+      description: Hex encoded script hash
+      explode: false
+      in: path
+      name: script_hash
+      required: true
+      schema:
+        example: 3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712
+        type: string
+      style: simple
+    tx_hash:
+      description: Hex encoded transaction hash
+      explode: false
+      in: path
+      name: tx_hash
+      required: true
+      schema:
+        example: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+        type: string
+      style: simple
+    index:
+      description: Transaction output index
+      explode: false
+      in: path
+      name: index
+      required: true
+      schema:
+        minimum: 0
+        type: integer
+      style: simple
+    count:
+      allowEmptyValue: true
+      description: The max number of results per pagination page
+      explode: true
+      in: query
+      name: count
+      required: false
+      schema:
+        default: 100
+        maximum: 100
+        minimum: 1
+        type: integer
+      style: form
+    page:
+      allowEmptyValue: true
+      description: Pagination page number to show results for
+      explode: true
+      in: query
+      name: page
+      required: false
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+      style: form
+    resolve_datums:
+      allowEmptyValue: true
+      description: Try find and include the corresponding datums for datum hashes
+      explode: true
+      in: query
+      name: resolve_datums
+      required: false
+      schema:
+        default: false
+        type: boolean
+      style: form
+    with_cbor:
+      allowEmptyValue: true
+      description: Include the CBOR encodings of the transaction outputs in the response
+      explode: true
+      in: query
+      name: with_cbor
+      required: false
+      schema:
+        default: false
+        type: boolean
+      style: form
+  responses: {}
+  schemas:
+    AccountAction:
+      description: Type of staking-related action
+      enum:
+      - registration
+      - deregistration
+      - delegation
+      - withdrawal
+      type: string
+    AccountHistory:
+      description: Per-epoch information about a stake account
+      example:
+        active_stake: 0
+        epoch_no: 6
+        pool_id: pool_id
+      properties:
+        active_stake:
+          description: Active stake of the account in the epoch
+          format: int64
+          type: integer
+        epoch_no:
+          description: Epoch number
+          format: int32
+          type: integer
+        pool_id:
+          description: Bech32 encoded pool ID the account was delegated to
+          type: string
+      required:
+      - active_stake
+      - epoch_no
+      type: object
+    AccountInfo:
+      description: Summary of information regarding a stake account
+      example:
+        delegated_pool: delegated_pool
+        total_balance: 6
+        utxo_balance: 5
+        stake_address: stake_address
+        total_withdrawn: 5
+        total_rewarded: 1
+        registered: true
+        rewards_available: 0
+      properties:
+        delegated_pool:
+          description: Bech32 pool ID that the stake key is delegated to
+          type: string
+        registered:
+          description: True if the stake key is registered
+          type: boolean
+        rewards_available:
+          description: The amount of rewards that are available to be withdrawn
+          format: int64
+          type: integer
+        stake_address:
+          description: Bech32 encoded stake address
+          type: string
+        total_balance:
+          description: Total balance controlled by the stake key (sum of UTxO and
+            rewards)
+          format: int64
+          type: integer
+        total_rewarded:
+          description: Total rewards earned
+          format: int64
+          type: integer
+        total_withdrawn:
+          description: Total rewards withdrawn
+          format: int64
+          type: integer
+        utxo_balance:
+          description: Amount locked in UTxOs controlled by addresses with the stake
+            key
+          format: int64
+          type: integer
+      required:
+      - registered
+      - rewards_available
+      - stake_address
+      - total_balance
+      - total_rewarded
+      - total_withdrawn
+      - utxo_balance
+      type: object
+    AccountReward:
+      description: Stake account related reward
+      example:
+        earned_epoch: 6
+        amount: 0
+        spendable_epoch: 1
+        pool_id: pool_id
+        type: null
+      properties:
+        amount:
+          description: Reward amount
+          format: int64
+          type: integer
+        earned_epoch:
+          description: Epoch in which the reward was earned
+          format: int32
+          type: integer
+        pool_id:
+          description: Bech32 encoded pool ID (if relevant to reward type)
+          type: string
+        spendable_epoch:
+          description: Epoch at which the reward is spendable
+          format: int32
+          type: integer
+        type:
+          $ref: '#/components/schemas/AccountStakingRewardType'
+      required:
+      - amount
+      - earned_epoch
+      - pool_id
+      - spendable_epoch
+      - type
+      type: object
+    AccountRewardType:
+      description: Type of stake account reward
+      enum:
+      - member
+      - leader
+      - treasury
+      - reserves
+      - refund
+      type: string
+    AccountStakingRewardType:
+      description: Staking-related reward type
+      enum:
+      - member
+      - leader
+      - refund
+      type: string
+    AccountUpdate:
+      description: Stake account related update
+      example:
+        abs_slot: 0
+        action: null
+        epoch_no: 6
+        tx_hash: tx_hash
+      properties:
+        abs_slot:
+          description: Absolute slot of the block which contained the transaction
+          format: int32
+          type: integer
+        action:
+          $ref: '#/components/schemas/AccountAction'
+        epoch_no:
+          description: Epoch number in which the transaction occured
+          format: int32
+          type: integer
+        tx_hash:
+          description: Transaction hash of the transaction which performed the action
+          type: string
+      required:
+      - abs_slot
+      - action
+      - epoch_no
+      - tx_hash
+      type: object
+    AddressInfo:
+      example:
+        staking_cred:
+          pointer:
+            cert_index: 0
+            slot: 6
+            tx_index: 1
+          reward_address: reward_address
+          kind: null
+          hex: hex
+          bech32: bech32
+        hex: hex
+        payment_cred:
+          kind: null
+          hex: hex
+          bech32: bech32
+        bech32: bech32
+        network: null
+      properties:
+        bech32:
+          type: string
+        hex:
+          type: string
+        network:
+          $ref: '#/components/schemas/NetworkId'
+        payment_cred:
+          $ref: '#/components/schemas/PaymentCredential'
+        staking_cred:
+          $ref: '#/components/schemas/StakingCredential'
+      required:
+      - hex
+      type: object
+    AddressTxCount:
+      example:
+        count: 0
+      properties:
+        count:
+          description: Number of transactions
+          format: int64
+          type: integer
+      required:
+      - count
+      type: object
+    Asset:
+      description: Lovelace or native asset
+      example:
+        unit: unit
+        quantity: 0
+      properties:
+        quantity:
+          description: Amount of the asset
+          format: int64
+          type: integer
+        unit:
+          description: Asset (in either the form `hex(policy_id)#hex(asset_name)`
+            or `lovelace`)
+          type: string
+      required:
+      - quantity
+      - unit
+      type: object
+    AssetHolder:
+      description: Holder of a specific asset
+      properties:
+        address:
+          description: Address of the holder
+          type: string
+        amount:
+          description: Amount of the asset owned by the holder
+          format: int64
+          type: integer
+      required:
+      - address
+      - amount
+      type: object
+    AssetInPolicy:
+      description: Asset of a specific policy
+      example:
+        quantity: 0
+        name: name
+      properties:
+        name:
+          description: Hex encoded asset name
+          type: string
+        quantity:
+          description: Amount of the asset
+          format: int64
+          type: integer
+      required:
+      - name
+      - quantity
+      type: object
+    AssetInfo:
+      example:
+        first_mint_time: 6
+        first_mint_tx: first_mint_tx
+        asset_name: asset_name
+        latest_mint_tx_metadata: "{}"
+        total_supply: 5
+        asset_standards:
+          cip25_metadata: "{}"
+          cip68_metadata: "{}"
+        burn_tx_count: 0
+        fingerprint: fingerprint
+        token_registry_metadata:
+          ticker: ticker
+          decimals: 5
+          name: name
+          description: description
+          logo: logo
+          url: url
+        asset_name_ascii: asset_name_ascii
+        mint_tx_count: 1
+      properties:
+        asset_name:
+          description: Hex encoding of the asset name
+          type: string
+        asset_name_ascii:
+          description: ASCII representation of the asset name
+          type: string
+        asset_standards:
+          $ref: '#/components/schemas/AssetStandards'
+        burn_tx_count:
+          description: Number of transactions which burned some of the asset
+          format: int64
+          type: integer
+        fingerprint:
+          description: CIP-14 fingerprint of the asset
+          type: string
+        first_mint_time:
+          description: UNIX timestamp of the first mint transaction
+          format: int32
+          type: integer
+        first_mint_tx:
+          description: Transaction hash of the first transaction which minted the
+            asset
+          type: string
+        latest_mint_tx_metadata:
+          type: object
+        mint_tx_count:
+          description: Number of transactions which minted some of the asset
+          format: int64
+          type: integer
+        token_registry_metadata:
+          $ref: '#/components/schemas/TokenRegistryMetadata'
+        total_supply:
+          description: Current amount of the asset minted
+          format: int64
+          type: integer
+      required:
+      - asset_name
+      - asset_standards
+      - burn_tx_count
+      - fingerprint
+      - first_mint_time
+      - first_mint_tx
+      - mint_tx_count
+      - total_supply
+      type: object
+    AssetStandards:
+      description: Asset information corresponding to popular standards
+      example:
+        cip25_metadata: "{}"
+        cip68_metadata: "{}"
+      properties:
+        cip25_metadata:
+          type: object
+        cip68_metadata:
+          type: object
+      type: object
+    AssetTx:
+      description: Transaction which moved or minted a specific asset
+      example:
+        epoch_no: 6
+        tx_hash: tx_hash
+        block_height: 0
+      properties:
+        block_height:
+          description: The height of the block which included the transaction
+          format: int32
+          type: integer
+        epoch_no:
+          description: Epoch in which the transaction occurred
+          format: int32
+          type: integer
+        tx_hash:
+          description: Transaction hash
+          type: string
+      required:
+      - block_height
+      - epoch_no
+      - tx_hash
+      type: object
+    AssetUtxo:
+      description: UTxO which contains a specific asset
+      properties:
+        address:
+          description: Address which controls the UTxO
+          type: string
+        amount:
+          description: Amount of the asset contained in the UTxO
+          format: int64
+          type: integer
+        index:
+          description: UTxO transaction index
+          type: integer
+        tx_hash:
+          description: UTxO transaction hash
+          type: string
+      required:
+      - address
+      - amount
+      - index
+      - tx_hash
+      type: object
+    Bound:
+      example:
+        epoch: 0
+        slot: 6
+        time: 1
+      properties:
+        epoch:
+          format: int64
+          type: integer
+        slot:
+          format: int64
+          type: integer
+        time:
+          format: int64
+          type: integer
+      required:
+      - epoch
+      - slot
+      - time
+      type: object
+    CertRedeemer:
+      properties:
+        cert_index:
+          type: integer
+        data:
+          $ref: '#/components/schemas/Datum'
+        ex_units:
+          format: int64
+          type: integer
+      required:
+      - cert_index
+      - data
+      - ex_units
+      type: object
+    Certificates:
+      description: Certificates found in a transaction
+      properties:
+        mir_transfers:
+          items:
+            $ref: '#/components/schemas/MirCert'
+          type: array
+        pool_registrations:
+          items:
+            $ref: '#/components/schemas/PoolRegCert'
+          type: array
+        pool_retirements:
+          items:
+            $ref: '#/components/schemas/PoolRetireCert'
+          type: array
+        stake_delegations:
+          items:
+            $ref: '#/components/schemas/StakeDelegCert'
+          type: array
+        stake_deregistrations:
+          items:
+            $ref: '#/components/schemas/StakeRegCert'
+          type: array
+        stake_registrations:
+          items:
+            $ref: '#/components/schemas/StakeRegCert'
+          type: array
+      required:
+      - mir_transfers
+      - pool_registrations
+      - pool_retirements
+      - stake_delegations
+      - stake_deregistrations
+      - stake_registrations
+      type: object
+    ChainTip:
+      description: Blockchain chain-tip (most recently adopted block)
+      example:
+        block_hash: block_hash
+        slot: 6
+        height: 0
+      properties:
+        block_hash:
+          description: Block hash of the most recent block
+          type: string
+        height:
+          description: Height (number) of the most recent block
+          format: int64
+          type: integer
+        slot:
+          description: Absolute slot of the most recent block
+          format: int64
+          type: integer
+      required:
+      - block_hash
+      - height
+      - slot
+      type: object
+    CurrentEpochInfo:
+      description: Information summary of the current epoch
+      example:
+        start_time: 1
+        fees: fees
+        tx_count: 5
+        epoch_no: 6
+        blk_count: 0
+      properties:
+        blk_count:
+          description: Total blocks in the epoch so far
+          format: int32
+          type: integer
+        epoch_no:
+          description: Epoch number
+          format: int32
+          type: integer
+        fees:
+          description: Total fees collected in the epoch so far
+          type: string
+        start_time:
+          description: UNIX timestamp when the epoch began
+          format: int64
+          type: integer
+        tx_count:
+          description: Total transactions in the epoch so far
+          format: int32
+          type: integer
+      required:
+      - blk_count
+      - epoch_no
+      - fees
+      - start_time
+      - tx_count
+      type: object
+    CurrentSlot:
+      properties:
+        number:
+          description: Slot number
+          format: int64
+          type: integer
+      required:
+      - number
+      type: object
+    Data:
+      properties:
+        hash:
+          type: string
+        value:
+          type: object
+      required:
+      - hash
+      - value
+      type: object
+    Datum:
+      example:
+        bytes: bytes
+        json: "{}"
+      properties:
+        bytes:
+          description: Hex encoded datum CBOR bytes
+          type: string
+        json:
+          type: object
+      required:
+      - bytes
+      - json
+      type: object
+    DatumOption:
+      description: Datum (inline or hash)
+      example:
+        bytes: bytes
+        json: "{}"
+        type: null
+        hash: hash
+      properties:
+        bytes:
+          description: Hex encoded datum CBOR bytes (`null` if datum type is `hash`
+            and corresponding datum bytes have not been seen on-chain)
+          type: string
+        hash:
+          description: Datum hash
+          type: string
+        json:
+          type: object
+        type:
+          $ref: '#/components/schemas/DatumOptionType'
+      required:
+      - hash
+      - type
+      type: object
+    DatumOptionType:
+      description: Datum type (inline datum or datum hash)
+      enum:
+      - hash
+      - inline
+      type: string
+    DelegatorInfo:
+      description: Information summary of a delegator
+      example:
+        amount: 6
+        stake_address: stake_address
+        active_epoch_no: 0
+        latest_delegation_tx_hash: latest_delegation_tx_hash
+      properties:
+        active_epoch_no:
+          description: Epoch at which the delegation becomes active
+          format: int64
+          type: integer
+        amount:
+          description: Delegator live stake
+          format: int64
+          type: integer
+        latest_delegation_tx_hash:
+          description: Transaction hash relating to the most recent delegation
+          type: string
+        stake_address:
+          description: Bech32 encoded stake address (reward address)
+          type: string
+      type: object
+    EpochInfo:
+      description: Information summary of an epoch
+      example:
+        start_time: 5
+        fees: fees
+        tx_count: 5
+        end_time: 6
+        epoch_no: 1
+        blk_count: 0
+      properties:
+        blk_count:
+          description: Total blocks in the epoch
+          format: int32
+          type: integer
+        end_time:
+          description: UNIX timestamp when the epoch ended
+          format: int64
+          type: integer
+        epoch_no:
+          description: Epoch number
+          format: int32
+          type: integer
+        fees:
+          description: Total fees collected in the epoch
+          type: string
+        start_time:
+          description: UNIX timestamp when the epoch began
+          format: int64
+          type: integer
+        tx_count:
+          description: Total transactions in the epoch
+          format: int32
+          type: integer
+      required:
+      - blk_count
+      - end_time
+      - epoch_no
+      - fees
+      - start_time
+      - tx_count
+      type: object
+    EraParameters:
+      example:
+        safe_zone: 5
+        epoch_length: 5
+        slot_length: 2
+      properties:
+        epoch_length:
+          format: int64
+          type: integer
+        safe_zone:
+          format: int64
+          type: integer
+        slot_length:
+          format: int64
+          type: integer
+      required:
+      - epoch_length
+      - slot_length
+      type: object
+    EraSummary:
+      example:
+        start:
+          epoch: 0
+          slot: 6
+          time: 1
+        end:
+          epoch: 0
+          slot: 6
+          time: 1
+        parameters:
+          safe_zone: 5
+          epoch_length: 5
+          slot_length: 2
+      properties:
+        end:
+          $ref: '#/components/schemas/Bound'
+        parameters:
+          $ref: '#/components/schemas/EraParameters'
+        start:
+          $ref: '#/components/schemas/Bound'
+      required:
+      - parameters
+      - start
+      type: object
+    ExUnit:
+      description: Execution units for Plutus scripts
+      example:
+        memory: 9
+        steps: 3
+      properties:
+        memory:
+          description: Memory execution units
+          format: int64
+          type: integer
+        steps:
+          description: CPU execution units
+          format: int64
+          type: integer
+      required:
+      - memory
+      - steps
+      type: object
+    MintAsset:
+      description: Lovelace or native asset
+      properties:
+        quantity:
+          description: Amount of the asset minted or burned (negative is burn)
+          format: int64
+          type: integer
+        unit:
+          description: Asset (in the form `hex(policy_id)#hex(asset_name)`)
+          type: string
+      required:
+      - quantity
+      - unit
+      type: object
+    MintRedeemer:
+      properties:
+        data:
+          $ref: '#/components/schemas/Datum'
+        ex_units:
+          format: int64
+          type: integer
+        policy:
+          type: string
+      required:
+      - data
+      - ex_units
+      - policy
+      type: object
+    MintingTx:
+      description: Transaction which minted or burned a specific asset
+      example:
+        metadata: "{}"
+        block_timestamp: 0
+        tx_hash: tx_hash
+        mint_amount: 6
+      properties:
+        block_timestamp:
+          description: UNIX timestamp of the block which included transaction
+          format: int32
+          type: integer
+        metadata:
+          type: object
+        mint_amount:
+          description: Amount of the asset minted or burned (negative if burned)
+          format: int64
+          type: integer
+        tx_hash:
+          description: Transaction hash
+          type: string
+      required:
+      - block_timestamp
+      - mint_amount
+      - tx_hash
+      type: object
+    MirCert:
+      description: Certificate for sending an instantaneous reward
+      properties:
+        cert_index:
+          description: Index of the certificate in the transaction
+          type: integer
+        from:
+          $ref: '#/components/schemas/MirSource'
+        to:
+          description: Where the rewards funds are being sent
+          type: string
+      required:
+      - cert_index
+      - from
+      - to
+      type: object
+    MirSource:
+      description: The pot from which an MIR reward is being funded by
+      enum:
+      - reserves
+      - treasury
+      type: string
+    NetworkId:
+      enum:
+      - mainnet
+      - testnet
+      type: string
+    PaymentCredKind:
+      enum:
+      - key
+      - script
+      type: string
+    PaymentCredential:
+      example:
+        kind: null
+        hex: hex
+        bech32: bech32
+      properties:
+        bech32:
+          type: string
+        hex:
+          type: string
+        kind:
+          $ref: '#/components/schemas/PaymentCredKind'
+      required:
+      - bech32
+      - hex
+      - kind
+      type: object
+    Pointer:
+      example:
+        cert_index: 0
+        slot: 6
+        tx_index: 1
+      properties:
+        cert_index:
+          format: int64
+          type: integer
+        slot:
+          format: int64
+          type: integer
+        tx_index:
+          format: int64
+          type: integer
+      required:
+      - cert_index
+      - slot
+      - tx_index
+      type: object
+    PolicyHolder:
+      description: Holder of assets of a specific policy
+      properties:
+        address:
+          description: Address of the holder
+          type: string
+        assets:
+          items:
+            $ref: '#/components/schemas/AssetInPolicy'
+          type: array
+      required:
+      - address
+      - assets
+      type: object
+    PolicyUtxo:
+      description: UTxO which contains assets of a specific policy
+      example:
+        address: address
+        assets:
+        - quantity: 0
+          name: name
+        - quantity: 0
+          name: name
+        index: 6
+        tx_hash: tx_hash
+      properties:
+        address:
+          description: Address which controls the UTxO
+          type: string
+        assets:
+          items:
+            $ref: '#/components/schemas/AssetInPolicy'
+          type: array
+        index:
+          description: UTxO transaction index
+          type: integer
+        tx_hash:
+          description: UTxO transaction hash
+          type: string
+      required:
+      - address
+      - assets
+      - index
+      - tx_hash
+      type: object
+    PoolBlock:
+      description: Block created by a stake pool
+      example:
+        block_time: 1
+        abs_slot: 0
+        block_hash: block_hash
+        epoch_no: 5
+        epoch_slot: 5
+        block_height: 6
+      properties:
+        abs_slot:
+          description: Absolute slot of the block
+          format: int64
+          type: integer
+        block_hash:
+          description: Block hash
+          type: string
+        block_height:
+          description: Block height (block number)
+          format: int32
+          type: integer
+        block_time:
+          description: UNIX timestamp when the block was mined
+          format: int32
+          type: integer
+        epoch_no:
+          description: Epoch number
+          format: int32
+          type: integer
+        epoch_slot:
+          description: Epoch slot
+          format: int32
+          type: integer
+      required:
+      - block_hash
+      - block_height
+      - block_time
+      type: object
+    PoolHistory:
+      description: Per-epoch history of a stake pool
+      example:
+        active_stake: 0
+        block_cnt: 6
+        margin: 7.0614014
+        delegator_cnt: 5
+        epoch_no: 5
+        active_stake_pct: active_stake_pct
+        pool_fees: 9
+        epoch_ros: epoch_ros
+        fixed_cost: 2
+        saturation_pct: saturation_pct
+        deleg_rewards: 1
+      properties:
+        active_stake:
+          description: Active stake in the epoch
+          format: int64
+          type: integer
+        active_stake_pct:
+          description: Pool active stake as percentage of total active stake
+          type: string
+        block_cnt:
+          description: Blocks created in the epoch
+          format: int64
+          type: integer
+        deleg_rewards:
+          description: Total rewards earned by pool delegators for the epoch
+          format: int64
+          type: integer
+        delegator_cnt:
+          description: Delegators in the epoch
+          format: int64
+          type: integer
+        epoch_no:
+          description: Epoch number
+          format: int64
+          type: integer
+        epoch_ros:
+          description: Annual return percentage for delegators for the epoch
+          type: string
+        fixed_cost:
+          description: Pool fixed cost
+          format: int64
+          type: integer
+        margin:
+          description: Pool margin
+          format: float
+          type: number
+        pool_fees:
+          description: Fees collected for the epoch
+          format: int64
+          type: integer
+        saturation_pct:
+          description: Pool saturation percent
+          type: string
+      required:
+      - deleg_rewards
+      - epoch_no
+      - epoch_ros
+      - fixed_cost
+      - pool_fees
+      type: object
+    PoolInfo:
+      description: Information summary of a stake pool
+      example:
+        live_pledge: 2
+        live_saturation: live_saturation
+        sigma: sigma
+        active_stake: 6
+        margin: 9.301444
+        pool_id_bech32: pool_id_bech32
+        pool_id_hex: pool_id_hex
+        reward_addr: reward_addr
+        relays:
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        retiring_epoch: 7
+        op_cert_counter: 3
+        owners:
+        - owners
+        - owners
+        live_stake: 7
+        live_delegators: 5
+        meta_hash: meta_hash
+        vrf_key_hash: vrf_key_hash
+        op_cert: op_cert
+        pledge: 2
+        block_count: 1
+        pool_status: pool_status
+        active_epoch_no: 0
+        fixed_cost: 5
+        meta_json:
+          ticker: ticker
+          name: name
+          description: description
+          homepage: homepage
+        meta_url: meta_url
+      properties:
+        active_epoch_no:
+          description: Epoch when the update takes effect
+          format: int64
+          type: integer
+        active_stake:
+          description: Active stake
+          format: int64
+          type: integer
+        block_count:
+          description: Number of blocks created
+          format: int64
+          type: integer
+        fixed_cost:
+          description: Pool fixed cost
+          format: int64
+          type: integer
+        live_delegators:
+          description: Number of current delegators
+          format: int64
+          type: integer
+        live_pledge:
+          description: Account balance of pool owners
+          format: int64
+          type: integer
+        live_saturation:
+          description: Live saturation
+          type: string
+        live_stake:
+          description: Live stake
+          format: int64
+          type: integer
+        margin:
+          description: Pool margin
+          format: float
+          type: number
+        meta_hash:
+          description: Hash of the pool metadata
+          type: string
+        meta_json:
+          $ref: '#/components/schemas/PoolMetaJson'
+        meta_url:
+          description: URL pointing to the pool metadata
+          type: string
+        op_cert:
+          description: Pool operational certificate
+          type: string
+        op_cert_counter:
+          description: Operational certificate counter
+          format: int64
+          type: integer
+        owners:
+          items:
+            description: List of stake keys which control the pool
+            type: string
+          type: array
+        pledge:
+          description: Pool pledge
+          format: int64
+          type: integer
+        pool_id_bech32:
+          description: Bech32 encoded pool ID
+          type: string
+        pool_id_hex:
+          description: Hex encoded pool ID
+          type: string
+        pool_status:
+          description: Status of the pool
+          type: string
+        relays:
+          items:
+            $ref: '#/components/schemas/Relay'
+          type: array
+        retiring_epoch:
+          description: Epoch at which the pool will be retired
+          format: int32
+          type: integer
+        reward_addr:
+          description: Reward address associated with the pool
+          type: string
+        sigma:
+          description: Pool stake share
+          type: string
+        vrf_key_hash:
+          description: VRF key hash
+          type: string
+      required:
+      - active_epoch_no
+      - fixed_cost
+      - live_delegators
+      - margin
+      - owners
+      - pledge
+      - pool_id_bech32
+      - pool_id_hex
+      - relays
+      - vrf_key_hash
+      type: object
+    PoolListInfo:
+      description: Stake pool identifier
+      example:
+        pool_id_bech32: pool_id_bech32
+        ticker: ticker
+      properties:
+        pool_id_bech32:
+          description: Bech32 encoded pool ID
+          type: string
+        ticker:
+          description: Pool ticker symbol
+          type: string
+      required:
+      - pool_id_bech32
+      type: object
+    PoolMetaJson:
+      description: JSON metadata associated with a stake pool
+      example:
+        ticker: ticker
+        name: name
+        description: description
+        homepage: homepage
+      properties:
+        description:
+          description: Pool description
+          type: string
+        homepage:
+          description: Pool home page URL
+          type: string
+        name:
+          description: Pool name
+          type: string
+        ticker:
+          description: Pool ticker symbol
+          type: string
+      required:
+      - name
+      type: object
+    PoolMetadata:
+      description: Metadata associated with a stake pool
+      example:
+        pool_id_bech32: pool_id_bech32
+        meta_hash: meta_hash
+        meta_json:
+          ticker: ticker
+          name: name
+          description: description
+          homepage: homepage
+        meta_url: meta_url
+      properties:
+        meta_hash:
+          description: Hash of the pool metadata
+          type: string
+        meta_json:
+          $ref: '#/components/schemas/PoolMetaJson'
+        meta_url:
+          description: URL pointing to the pool metadata
+          type: string
+        pool_id_bech32:
+          description: Bech32 encoded pool ID
+          type: string
+      required:
+      - pool_id_bech32
+      type: object
+    PoolRegCert:
+      description: Certificate for registering or updating a stake pool
+      properties:
+        cert_index:
+          description: Index of the certificate in the transaction
+          type: integer
+        fixed_cost:
+          description: Pool fixed cost
+          format: int64
+          type: integer
+        from_epoch:
+          description: Epoch at which the update will become active
+          format: int32
+          type: integer
+        margin:
+          description: Pool margin
+          format: float
+          type: number
+        metadata_hash:
+          description: Hash of metadata that the metadata URL should point to
+          type: string
+        metadata_url:
+          description: URL pointing to pool metadata declared by the stake pool
+          type: string
+        owner_addresses:
+          items:
+            description: Stake addresses which control the stake pool
+            type: string
+          type: array
+        pledge:
+          description: Pool pledge
+          format: int64
+          type: integer
+        pool_id:
+          description: Pool ID of the stake pool being updated
+          type: string
+        relays:
+          items:
+            $ref: '#/components/schemas/Relay'
+          type: array
+        reward_address:
+          description: Stake address which will receive rewards from the stake pool
+          type: string
+        vrf_key_hash:
+          description: VRF key hash of the stake pool
+          type: string
+      required:
+      - cert_index
+      - fixed_cost
+      - from_epoch
+      - margin
+      - owner_addresses
+      - pledge
+      - pool_id
+      - relays
+      - reward_address
+      - vrf_key_hash
+      type: object
+    PoolRelay:
+      description: Relay declared by a stake pool
+      example:
+        pool_id_bech32: pool_id_bech32
+        relays:
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+      properties:
+        pool_id_bech32:
+          description: Bech32 encoded pool ID
+          type: string
+        relays:
+          items:
+            $ref: '#/components/schemas/Relay'
+          type: array
+      required:
+      - pool_id_bech32
+      - relays
+      type: object
+    PoolRetireCert:
+      description: Certificate for retiring a stake pool
+      properties:
+        after_epoch:
+          description: Pool will be retired at the end of this epoch
+          format: int32
+          type: integer
+        cert_index:
+          description: Index of the certificate in the transaction
+          type: integer
+        pool_id:
+          description: Bech32 pool ID of the pool being retired
+          type: string
+      required:
+      - after_epoch
+      - cert_index
+      - pool_id
+      type: object
+    PoolUpdate:
+      description: Update to a stake pool
+      example:
+        margin: 5.962134
+        pool_id_bech32: pool_id_bech32
+        pool_id_hex: pool_id_hex
+        reward_addr: reward_addr
+        relays:
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        retiring_epoch: 2
+        owners:
+        - owners
+        - owners
+        tx_hash: tx_hash
+        block_time: 6
+        meta_hash: meta_hash
+        vrf_key_hash: vrf_key_hash
+        pledge: 5
+        pool_status: pool_status
+        active_epoch_no: 0
+        fixed_cost: 1
+        meta_json:
+          ticker: ticker
+          name: name
+          description: description
+          homepage: homepage
+        meta_url: meta_url
+      properties:
+        active_epoch_no:
+          description: Epoch when the update takes effect
+          format: int64
+          type: integer
+        block_time:
+          description: UNIX timestamp of the block containing the transaction
+          format: int32
+          type: integer
+        fixed_cost:
+          description: Pool fixed cost
+          format: int64
+          type: integer
+        margin:
+          description: Pool margin
+          format: float
+          type: number
+        meta_hash:
+          description: Hash of the pool metadata
+          type: string
+        meta_json:
+          $ref: '#/components/schemas/PoolMetaJson'
+        meta_url:
+          description: URL pointing to the pool metadata
+          type: string
+        owners:
+          items:
+            description: List of stake keys which control the pool
+            type: string
+          type: array
+        pledge:
+          description: Pool pledge
+          format: int64
+          type: integer
+        pool_id_bech32:
+          description: Bech32 encoded pool ID
+          type: string
+        pool_id_hex:
+          description: Hex encoded pool ID
+          type: string
+        pool_status:
+          description: Status of the pool
+          type: string
+        relays:
+          items:
+            $ref: '#/components/schemas/Relay'
+          type: array
+        retiring_epoch:
+          description: Epoch at which the pool will be retired
+          format: int32
+          type: integer
+        reward_addr:
+          description: Reward address associated with the pool
+          type: string
+        tx_hash:
+          description: Transaction hash for the transaction which contained the update
+          type: string
+        vrf_key_hash:
+          description: VRF key hash
+          type: string
+      required:
+      - active_epoch_no
+      - fixed_cost
+      - margin
+      - owners
+      - pledge
+      - pool_id_bech32
+      - pool_id_hex
+      - relays
+      - tx_hash
+      - vrf_key_hash
+      type: object
+    Prices:
+      example:
+        memory: memory
+        steps: steps
+      properties:
+        memory:
+          type: string
+        steps:
+          type: string
+      required:
+      - memory
+      - steps
+      type: object
+    ProtocolParameters:
+      example:
+        desired_number_of_pools: 5
+        monetary_expansion: monetary_expansion
+        max_tx_size: 2
+        stake_key_deposit: 4
+        min_pool_cost: 1
+        min_fee_constant: 1
+        max_execution_units_per_block:
+          memory: 9
+          steps: 3
+        pool_influence: pool_influence
+        max_value_size: 4
+        collateral_percentage: 6
+        pool_retirement_epoch_bound: 6
+        protocol_version:
+          major: 7
+          minor: 1
+        max_collateral_inputs: 7
+        pool_deposit: 1
+        cost_models:
+          key:
+            key: 1
+        max_block_header_size: 2
+        min_fee_coefficient: 7
+        treasury_expansion: treasury_expansion
+        prices:
+          memory: memory
+          steps: steps
+        max_block_body_size: 5
+        coins_per_utxo_byte: 0
+        max_execution_units_per_transaction:
+          memory: 9
+          steps: 3
+      properties:
+        coins_per_utxo_byte:
+          format: int64
+          type: integer
+        collateral_percentage:
+          format: int64
+          type: integer
+        cost_models:
+          additionalProperties:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+          type: object
+        desired_number_of_pools:
+          format: int64
+          type: integer
+        max_block_body_size:
+          format: int64
+          type: integer
+        max_block_header_size:
+          format: int64
+          type: integer
+        max_collateral_inputs:
+          format: int64
+          type: integer
+        max_execution_units_per_block:
+          $ref: '#/components/schemas/ExUnit'
+        max_execution_units_per_transaction:
+          $ref: '#/components/schemas/ExUnit'
+        max_tx_size:
+          format: int64
+          type: integer
+        max_value_size:
+          format: int64
+          type: integer
+        min_fee_coefficient:
+          format: int64
+          type: integer
+        min_fee_constant:
+          format: int64
+          type: integer
+        min_pool_cost:
+          format: int64
+          type: integer
+        monetary_expansion:
+          type: string
+        pool_deposit:
+          format: int64
+          type: integer
+        pool_influence:
+          type: string
+        pool_retirement_epoch_bound:
+          format: int64
+          type: integer
+        prices:
+          $ref: '#/components/schemas/Prices'
+        protocol_version:
+          $ref: '#/components/schemas/Version'
+        stake_key_deposit:
+          format: int64
+          type: integer
+        treasury_expansion:
+          type: string
+      required:
+      - coins_per_utxo_byte
+      - collateral_percentage
+      - cost_models
+      - desired_number_of_pools
+      - max_block_body_size
+      - max_block_header_size
+      - max_collateral_inputs
+      - max_execution_units_per_block
+      - max_execution_units_per_transaction
+      - max_tx_size
+      - max_value_size
+      - min_fee_coefficient
+      - min_fee_constant
+      - min_pool_cost
+      - monetary_expansion
+      - pool_deposit
+      - pool_influence
+      - pool_retirement_epoch_bound
+      - prices
+      - protocol_version
+      - stake_key_deposit
+      - treasury_expansion
+      type: object
+    Redeemers:
+      properties:
+        certificates:
+          items:
+            $ref: '#/components/schemas/CertRedeemer'
+          type: array
+        mints:
+          items:
+            $ref: '#/components/schemas/MintRedeemer'
+          type: array
+        spends:
+          items:
+            $ref: '#/components/schemas/SpendRedeemer'
+          type: array
+        withdrawals:
+          items:
+            $ref: '#/components/schemas/WdrlRedeemer'
+          type: array
+      required:
+      - certificates
+      - mints
+      - spends
+      - withdrawals
+      type: object
+    Relay:
+      description: Stake pool relay
+      example:
+        ipv4: ipv4
+        port: 4
+        ipv6: ipv6
+        srv: srv
+        dns: dns
+      properties:
+        dns:
+          type: string
+        ipv4:
+          type: string
+        ipv6:
+          type: string
+        port:
+          format: int32
+          type: integer
+        srv:
+          type: string
+      type: object
+    Script:
+      description: Native or Plutus script
+      example:
+        bytes: bytes
+        json: "{}"
+        type: null
+        hash: hash
+      properties:
+        bytes:
+          description: Script bytes (`null` if `native` script)
+          type: string
+        hash:
+          description: Script hash
+          type: string
+        json:
+          type: object
+        type:
+          $ref: '#/components/schemas/ScriptType'
+      required:
+      - hash
+      - type
+      type: object
+    ScriptType:
+      description: Script type and version
+      enum:
+      - native
+      - plutusv1
+      - plutusv2
+      type: string
+    SpendRedeemer:
+      properties:
+        data:
+          $ref: '#/components/schemas/Datum'
+        ex_units:
+          format: int64
+          type: integer
+        input_index:
+          type: integer
+      required:
+      - data
+      - ex_units
+      - input_index
+      type: object
+    StakeDelegCert:
+      description: Certificate for stake key delegation
+      properties:
+        cert_index:
+          description: Index of the certificate in the transaction
+          type: integer
+        pool_id:
+          description: Pool ID of the stake pool the stake key is delegating to
+          type: string
+        stake_address:
+          description: Stake address corresponding to stake key being delegated
+          type: string
+      required:
+      - cert_index
+      - pool_id
+      - stake_address
+      type: object
+    StakeRegCert:
+      description: Certificate for registering a stake key
+      properties:
+        cert_index:
+          description: Index of the certificate in the transaction
+          type: integer
+        stake_address:
+          description: Stake address corresponding to stake key being updated
+          type: string
+      required:
+      - cert_index
+      - stake_address
+      type: object
+    StakingCredKind:
+      enum:
+      - key
+      - script
+      - pointer
+      type: string
+    StakingCredential:
+      example:
+        pointer:
+          cert_index: 0
+          slot: 6
+          tx_index: 1
+        reward_address: reward_address
+        kind: null
+        hex: hex
+        bech32: bech32
+      properties:
+        bech32:
+          type: string
+        hex:
+          type: string
+        kind:
+          $ref: '#/components/schemas/StakingCredKind'
+        pointer:
+          $ref: '#/components/schemas/Pointer'
+        reward_address:
+          type: string
+      required:
+      - kind
+      type: object
+    SystemStart:
+      example:
+        time: time
+      properties:
+        time:
+          type: string
+      required:
+      - time
+      type: object
+    TokenRegistryMetadata:
+      description: Token registry metadata
+      example:
+        ticker: ticker
+        decimals: 5
+        name: name
+        description: description
+        logo: logo
+        url: url
+      properties:
+        decimals:
+          description: Recommended value for decimal places
+          format: int64
+          type: integer
+        description:
+          description: Asset description
+          type: string
+        logo:
+          description: Base64 encoded logo PNG associated with the asset
+          type: string
+        name:
+          description: Asset name
+          type: string
+        ticker:
+          description: Asset ticker
+          type: string
+        url:
+          description: URL associated with the asset
+          type: string
+      required:
+      - decimals
+      - description
+      - logo
+      - name
+      - ticker
+      - url
+      type: object
+    TransactionInfo:
+      description: Transaction Information
+      properties:
+        additional_signers:
+          items:
+            description: Additional required signers
+            type: string
+          type: array
+        block_absolute_slot:
+          description: Absolute slot of the block which includes the transaction
+          format: int64
+          type: integer
+        block_hash:
+          description: Hash of the block which includes the transaction
+          type: string
+        block_height:
+          description: Block height (number) of the block which includes the transaction
+          format: int32
+          type: integer
+        block_timestamp:
+          description: UNIX timestamp of the block which includes the transaction
+          format: int64
+          type: integer
+        block_tx_index:
+          description: The transaction's position within the block which includes
+            it
+          type: integer
+        certificates:
+          $ref: '#/components/schemas/Certificates'
+        collateral_inputs:
+          items:
+            $ref: '#/components/schemas/Utxo'
+          type: array
+        collateral_return:
+          $ref: '#/components/schemas/Utxo'
+        inputs:
+          items:
+            $ref: '#/components/schemas/Utxo'
+          type: array
+        invalid_before:
+          description: The slot before which the transaction would not be accepted
+            onto the chain
+          format: int64
+          type: integer
+        invalid_hereafter:
+          description: The slot from which the transaction would not be accepted onto
+            the chain
+          format: int64
+          type: integer
+        metadata:
+          type: object
+        mint:
+          items:
+            $ref: '#/components/schemas/MintAsset'
+          type: array
+        outputs:
+          items:
+            $ref: '#/components/schemas/Utxo'
+          type: array
+        redeemers:
+          $ref: '#/components/schemas/Redeemers'
+        reference_inputs:
+          items:
+            $ref: '#/components/schemas/Utxo'
+          type: array
+        scripts_executed:
+          items:
+            $ref: '#/components/schemas/Script'
+          type: array
+        scripts_successful:
+          description: "False if any executed Plutus scripts failed (aka phase-two\
+            \ validity), meaning collateral was processed."
+          type: boolean
+        tx_hash:
+          description: Transaction hash (identifier)
+          type: string
+        withdrawals:
+          items:
+            $ref: '#/components/schemas/Withdrawal'
+          type: array
+      required:
+      - additional_signers
+      - block_absolute_slot
+      - block_hash
+      - block_height
+      - block_timestamp
+      - block_tx_index
+      - certificates
+      - collateral_inputs
+      - inputs
+      - mint
+      - outputs
+      - redeemers
+      - reference_inputs
+      - scripts_executed
+      - scripts_successful
+      - tx_hash
+      - withdrawals
+      type: object
+    TxCbor:
+      description: Transaction bytes
+      example:
+        cbor: cbor
+      properties:
+        cbor:
+          description: Hex encoded transaction CBOR bytes
+          type: string
+      required:
+      - cbor
+      type: object
+    TxStatus:
+      enum:
+      - Failed
+      - Onchain
+      - Pending
+      - Rejected
+      - Rolledback
+      type: string
+    TxStatusInfo:
+      properties:
+        tx_hash:
+          type: string
+        tx_status:
+          $ref: '#/components/schemas/TxStatus'
+      required:
+      - tx_hash
+      - tx_status
+      type: object
+    Utxo:
+      description: Transaction output
+      example:
+        datum:
+          bytes: bytes
+          json: "{}"
+          type: null
+          hash: hash
+        reference_script:
+          bytes: bytes
+          json: "{}"
+          type: null
+          hash: hash
+        address: address
+        assets:
+        - unit: unit
+          quantity: 0
+        - unit: unit
+          quantity: 0
+        index: 0
+        tx_hash: tx_hash
+      properties:
+        address:
+          description: Address which controls the UTxO
+          type: string
+        assets:
+          items:
+            $ref: '#/components/schemas/Asset'
+          type: array
+        datum:
+          $ref: '#/components/schemas/DatumOption'
+        index:
+          description: UTxO transaction index
+          type: integer
+        reference_script:
+          $ref: '#/components/schemas/Script'
+        tx_hash:
+          description: UTxO transaction hash
+          type: string
+      required:
+      - address
+      - assets
+      - index
+      - tx_hash
+      type: object
+    UtxoAddress:
+      example:
+        address: address
+      properties:
+        address:
+          type: string
+      required:
+      - address
+      type: object
+    UtxoRef:
+      description: UTxO reference (transaction hash and output index)
+      example:
+        index: 0
+        tx_hash: tx_hash
+      properties:
+        index:
+          description: UTxO transaction index
+          type: integer
+        tx_hash:
+          description: UTxO transaction hash
+          type: string
+      required:
+      - index
+      - tx_hash
+      type: object
+    UtxoWithBytes:
+      description: Transaction output
+      properties:
+        address:
+          description: Address which controls the UTxO
+          type: string
+        assets:
+          items:
+            $ref: '#/components/schemas/Asset'
+          type: array
+        datum:
+          $ref: '#/components/schemas/DatumOption'
+        index:
+          description: UTxO transaction index
+          type: integer
+        reference_script:
+          $ref: '#/components/schemas/Script'
+        tx_hash:
+          description: UTxO transaction hash
+          type: string
+        txout_cbor:
+          description: Hex encoded transaction output CBOR bytes
+          type: string
+      required:
+      - address
+      - assets
+      - index
+      - tx_hash
+      type: object
+    Version:
+      example:
+        major: 7
+        minor: 1
+      properties:
+        major:
+          format: int32
+          type: integer
+        minor:
+          format: int32
+          type: integer
+      required:
+      - major
+      - minor
+      type: object
+    WdrlRedeemer:
+      properties:
+        data:
+          $ref: '#/components/schemas/Datum'
+        ex_units:
+          format: int64
+          type: integer
+        stake_address:
+          type: string
+      required:
+      - data
+      - ex_units
+      - stake_address
+      type: object
+    Withdrawal:
+      properties:
+        amount:
+          format: int64
+          type: integer
+        stake_address:
+          type: string
+      required:
+      - amount
+      - stake_address
+      type: object
+  securitySchemes:
+    api_key_header:
+      in: header
+      name: api-key
+      type: apiKey
