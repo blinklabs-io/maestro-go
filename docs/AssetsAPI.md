@@ -1,17 +1,18 @@
-# \AssetsApi
+# \AssetsAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**AssetAddresses**](AssetsApi.md#AssetAddresses) | **Get** /assets/{asset}/addresses | Native asset addresses
-[**AssetInfo**](AssetsApi.md#AssetInfo) | **Get** /assets/{asset} | Native asset information
-[**AssetTxs**](AssetsApi.md#AssetTxs) | **Get** /assets/{asset}/txs | Native asset transaction
-[**AssetUpdates**](AssetsApi.md#AssetUpdates) | **Get** /assets/{asset}/updates | Native asset updates
-[**PolicyAddresses**](AssetsApi.md#PolicyAddresses) | **Get** /assets/policy/{policy}/addresses | Minting policy addresses
-[**PolicyInfo**](AssetsApi.md#PolicyInfo) | **Get** /assets/policy/{policy} | Minting policy information
-[**PolicyTxs**](AssetsApi.md#PolicyTxs) | **Get** /assets/policy/{policy}/txs | Minting policy transactions
-[**PolicyUtxos**](AssetsApi.md#PolicyUtxos) | **Get** /assets/policy/{policy}/utxos | Minting policy UTxOs
+[**AssetAddresses**](AssetsAPI.md#AssetAddresses) | **Get** /assets/{asset}/addresses | Native asset addresses
+[**AssetInfo**](AssetsAPI.md#AssetInfo) | **Get** /assets/{asset} | Native asset information
+[**AssetTxs**](AssetsAPI.md#AssetTxs) | **Get** /assets/{asset}/txs | Native asset transaction
+[**AssetUpdates**](AssetsAPI.md#AssetUpdates) | **Get** /assets/{asset}/updates | Native asset updates
+[**AssetUtxos**](AssetsAPI.md#AssetUtxos) | **Get** /assets/{asset}/utxos | Native asset UTxOs
+[**PolicyAddresses**](AssetsAPI.md#PolicyAddresses) | **Get** /assets/policy/{policy}/addresses | Minting policy addresses
+[**PolicyInfo**](AssetsAPI.md#PolicyInfo) | **Get** /assets/policy/{policy} | Minting policy information
+[**PolicyTxs**](AssetsAPI.md#PolicyTxs) | **Get** /assets/policy/{policy}/txs | Minting policy transactions
+[**PolicyUtxos**](AssetsAPI.md#PolicyUtxos) | **Get** /assets/policy/{policy}/utxos | Minting policy UTxOs
 
 
 
@@ -42,13 +43,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.AssetAddresses(context.Background(), asset).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AssetsAPI.AssetAddresses(context.Background(), asset).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.AssetAddresses``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.AssetAddresses``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AssetAddresses`: []string
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.AssetAddresses`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.AssetAddresses`: %v\n", resp)
 }
 ```
 
@@ -114,13 +115,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.AssetInfo(context.Background(), asset).Execute()
+    resp, r, err := apiClient.AssetsAPI.AssetInfo(context.Background(), asset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.AssetInfo``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.AssetInfo``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AssetInfo`: AssetInfo
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.AssetInfo`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.AssetInfo`: %v\n", resp)
 }
 ```
 
@@ -188,13 +189,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.AssetTxs(context.Background(), asset).FromHeight(fromHeight).Count(count).Page(page).Order(order).Execute()
+    resp, r, err := apiClient.AssetsAPI.AssetTxs(context.Background(), asset).FromHeight(fromHeight).Count(count).Page(page).Order(order).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.AssetTxs``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.AssetTxs``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AssetTxs`: []AssetTx
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.AssetTxs`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.AssetTxs`: %v\n", resp)
 }
 ```
 
@@ -265,13 +266,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.AssetUpdates(context.Background(), asset).Count(count).Page(page).Order(order).Execute()
+    resp, r, err := apiClient.AssetsAPI.AssetUpdates(context.Background(), asset).Count(count).Page(page).Order(order).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.AssetUpdates``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.AssetUpdates``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AssetUpdates`: []MintingTx
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.AssetUpdates`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.AssetUpdates`: %v\n", resp)
 }
 ```
 
@@ -298,6 +299,80 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**[]MintingTx**](MintingTx.md)
+
+### Authorization
+
+[api_key_header](../README.md#api_key_header)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## AssetUtxos
+
+> []AssetUtxo AssetUtxos(ctx, asset).Count(count).Page(page).Execute()
+
+Native asset UTxOs
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "github.com/blinklabs-io/maestro-go"
+)
+
+func main() {
+    asset := "asset_example" // string | Asset, encoded as concatenation of hex of policy ID and asset name
+    count := int32(56) // int32 | The max number of results per page (optional) (default to 100)
+    page := int32(56) // int32 | The page number for the results (optional) (default to 1)
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.AssetsAPI.AssetUtxos(context.Background(), asset).Count(count).Page(page).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.AssetUtxos``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `AssetUtxos`: []AssetUtxo
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.AssetUtxos`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**asset** | **string** | Asset, encoded as concatenation of hex of policy ID and asset name | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiAssetUtxosRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **count** | **int32** | The max number of results per page | [default to 100]
+ **page** | **int32** | The page number for the results | [default to 1]
+
+### Return type
+
+[**[]AssetUtxo**](AssetUtxo.md)
 
 ### Authorization
 
@@ -340,13 +415,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.PolicyAddresses(context.Background(), policy).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AssetsAPI.PolicyAddresses(context.Background(), policy).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.PolicyAddresses``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.PolicyAddresses``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PolicyAddresses`: []string
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.PolicyAddresses`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.PolicyAddresses`: %v\n", resp)
 }
 ```
 
@@ -414,13 +489,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.PolicyInfo(context.Background(), policy).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AssetsAPI.PolicyInfo(context.Background(), policy).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.PolicyInfo``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.PolicyInfo``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PolicyInfo`: []AssetInfo
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.PolicyInfo`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.PolicyInfo`: %v\n", resp)
 }
 ```
 
@@ -490,13 +565,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.PolicyTxs(context.Background(), policy).FromHeight(fromHeight).Count(count).Page(page).Order(order).Execute()
+    resp, r, err := apiClient.AssetsAPI.PolicyTxs(context.Background(), policy).FromHeight(fromHeight).Count(count).Page(page).Order(order).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.PolicyTxs``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.PolicyTxs``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PolicyTxs`: []AssetTx
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.PolicyTxs`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.PolicyTxs`: %v\n", resp)
 }
 ```
 
@@ -566,13 +641,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AssetsApi.PolicyUtxos(context.Background(), policy).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AssetsAPI.PolicyUtxos(context.Background(), policy).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AssetsApi.PolicyUtxos``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AssetsAPI.PolicyUtxos``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PolicyUtxos`: []PolicyUtxo
-    fmt.Fprintf(os.Stdout, "Response from `AssetsApi.PolicyUtxos`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AssetsAPI.PolicyUtxos`: %v\n", resp)
 }
 ```
 

@@ -1,13 +1,13 @@
-# \GeneralApi
+# \GeneralAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**ChainTip**](GeneralApi.md#ChainTip) | **Get** /chain-tip | Chain tip details
-[**EraHistory**](GeneralApi.md#EraHistory) | **Get** /era-history | Era history
-[**ProtocolParams**](GeneralApi.md#ProtocolParams) | **Get** /protocol-params | Network protocol parameters
-[**SystemStart**](GeneralApi.md#SystemStart) | **Get** /system-start | System start time
+[**ChainTip**](GeneralAPI.md#ChainTip) | **Get** /chain-tip | Chain tip details
+[**EraHistory**](GeneralAPI.md#EraHistory) | **Get** /era-history | Era history
+[**ProtocolParams**](GeneralAPI.md#ProtocolParams) | **Get** /protocol-params | Network protocol parameters
+[**SystemStart**](GeneralAPI.md#SystemStart) | **Get** /system-start | System start time
 
 
 
@@ -35,13 +35,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.GeneralApi.ChainTip(context.Background()).Execute()
+    resp, r, err := apiClient.GeneralAPI.ChainTip(context.Background()).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `GeneralApi.ChainTip``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `GeneralAPI.ChainTip``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ChainTip`: ChainTip
-    fmt.Fprintf(os.Stdout, "Response from `GeneralApi.ChainTip`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `GeneralAPI.ChainTip`: %v\n", resp)
 }
 ```
 
@@ -96,13 +96,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.GeneralApi.EraHistory(context.Background()).Execute()
+    resp, r, err := apiClient.GeneralAPI.EraHistory(context.Background()).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `GeneralApi.EraHistory``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `GeneralAPI.EraHistory``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `EraHistory`: []EraSummary
-    fmt.Fprintf(os.Stdout, "Response from `GeneralApi.EraHistory`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `GeneralAPI.EraHistory`: %v\n", resp)
 }
 ```
 
@@ -157,13 +157,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.GeneralApi.ProtocolParams(context.Background()).Execute()
+    resp, r, err := apiClient.GeneralAPI.ProtocolParams(context.Background()).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `GeneralApi.ProtocolParams``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `GeneralAPI.ProtocolParams``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ProtocolParams`: ProtocolParameters
-    fmt.Fprintf(os.Stdout, "Response from `GeneralApi.ProtocolParams`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `GeneralAPI.ProtocolParams`: %v\n", resp)
 }
 ```
 
@@ -218,13 +218,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.GeneralApi.SystemStart(context.Background()).Execute()
+    resp, r, err := apiClient.GeneralAPI.SystemStart(context.Background()).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `GeneralApi.SystemStart``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `GeneralAPI.SystemStart``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `SystemStart`: SystemStart
-    fmt.Fprintf(os.Stdout, "Response from `GeneralApi.SystemStart`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `GeneralAPI.SystemStart`: %v\n", resp)
 }
 ```
 

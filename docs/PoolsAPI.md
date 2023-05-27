@@ -1,17 +1,17 @@
-# \PoolsApi
+# \PoolsAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**ListPools**](PoolsApi.md#ListPools) | **Get** /pools | Registered stake pools
-[**PoolBlocks**](PoolsApi.md#PoolBlocks) | **Get** /pools/{pool_id}/blocks | Stake pool blocks
-[**PoolDelegators**](PoolsApi.md#PoolDelegators) | **Get** /pools/{pool_id}/delegators | Stake pool delegators
-[**PoolHistory**](PoolsApi.md#PoolHistory) | **Get** /pools/{pool_id}/history | Stake pool history
-[**PoolInfo**](PoolsApi.md#PoolInfo) | **Get** /pools/{pool_id}/info | Stake pool details
-[**PoolMetadata**](PoolsApi.md#PoolMetadata) | **Get** /pools/{pool_id}/metadata | Stake pool metadata
-[**PoolRelays**](PoolsApi.md#PoolRelays) | **Get** /pools/{pool_id}/relays | Stake pool relays
-[**PoolUpdates**](PoolsApi.md#PoolUpdates) | **Get** /pools/{pool_id}/updates | Stake pool updates
+[**ListPools**](PoolsAPI.md#ListPools) | **Get** /pools | Registered stake pools
+[**PoolBlocks**](PoolsAPI.md#PoolBlocks) | **Get** /pools/{pool_id}/blocks | Stake pool blocks
+[**PoolDelegators**](PoolsAPI.md#PoolDelegators) | **Get** /pools/{pool_id}/delegators | Stake pool delegators
+[**PoolHistory**](PoolsAPI.md#PoolHistory) | **Get** /pools/{pool_id}/history | Stake pool history
+[**PoolInfo**](PoolsAPI.md#PoolInfo) | **Get** /pools/{pool_id}/info | Stake pool details
+[**PoolMetadata**](PoolsAPI.md#PoolMetadata) | **Get** /pools/{pool_id}/metadata | Stake pool metadata
+[**PoolRelays**](PoolsAPI.md#PoolRelays) | **Get** /pools/{pool_id}/relays | Stake pool relays
+[**PoolUpdates**](PoolsAPI.md#PoolUpdates) | **Get** /pools/{pool_id}/updates | Stake pool updates
 
 
 
@@ -41,13 +41,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.ListPools(context.Background()).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.PoolsAPI.ListPools(context.Background()).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.ListPools``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.ListPools``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ListPools`: []PoolListInfo
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.ListPools`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.ListPools`: %v\n", resp)
 }
 ```
 
@@ -112,13 +112,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolBlocks(context.Background(), poolId).EpochNo(epochNo).Count(count).Page(page).Order(order).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolBlocks(context.Background(), poolId).EpochNo(epochNo).Count(count).Page(page).Order(order).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolBlocks``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolBlocks``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolBlocks`: []PoolBlock
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolBlocks`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolBlocks`: %v\n", resp)
 }
 ```
 
@@ -188,13 +188,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolDelegators(context.Background(), poolId).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolDelegators(context.Background(), poolId).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolDelegators``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolDelegators``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolDelegators`: []DelegatorInfo
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolDelegators`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolDelegators`: %v\n", resp)
 }
 ```
 
@@ -264,13 +264,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolHistory(context.Background(), poolId).EpochNo(epochNo).Count(count).Page(page).Order(order).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolHistory(context.Background(), poolId).EpochNo(epochNo).Count(count).Page(page).Order(order).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolHistory``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolHistory``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolHistory`: []PoolHistory
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolHistory`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolHistory`: %v\n", resp)
 }
 ```
 
@@ -338,13 +338,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolInfo(context.Background(), poolId).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolInfo(context.Background(), poolId).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolInfo``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolInfo``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolInfo`: PoolInfo
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolInfo`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolInfo`: %v\n", resp)
 }
 ```
 
@@ -408,13 +408,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolMetadata(context.Background(), poolId).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolMetadata(context.Background(), poolId).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolMetadata``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolMetadata``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolMetadata`: PoolMetadata
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolMetadata`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolMetadata`: %v\n", resp)
 }
 ```
 
@@ -478,13 +478,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolRelays(context.Background(), poolId).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolRelays(context.Background(), poolId).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolRelays``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolRelays``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolRelays`: []PoolRelay
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolRelays`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolRelays`: %v\n", resp)
 }
 ```
 
@@ -548,13 +548,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.PoolsApi.PoolUpdates(context.Background(), poolId).Execute()
+    resp, r, err := apiClient.PoolsAPI.PoolUpdates(context.Background(), poolId).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `PoolsApi.PoolUpdates``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `PoolsAPI.PoolUpdates``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `PoolUpdates`: []PoolUpdate
-    fmt.Fprintf(os.Stdout, "Response from `PoolsApi.PoolUpdates`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `PoolsAPI.PoolUpdates`: %v\n", resp)
 }
 ```
 

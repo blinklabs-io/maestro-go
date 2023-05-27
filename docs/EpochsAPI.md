@@ -1,11 +1,11 @@
-# \EpochsApi
+# \EpochsAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CurrentEpoch**](EpochsApi.md#CurrentEpoch) | **Get** /epochs/current | Current epoch of the network
-[**EpochInfo**](EpochsApi.md#EpochInfo) | **Get** /epochs/{epoch_no}/info | Epoch details
+[**CurrentEpoch**](EpochsAPI.md#CurrentEpoch) | **Get** /epochs/current | Current epoch of the network
+[**EpochInfo**](EpochsAPI.md#EpochInfo) | **Get** /epochs/{epoch_no}/info | Epoch details
 
 
 
@@ -33,13 +33,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.EpochsApi.CurrentEpoch(context.Background()).Execute()
+    resp, r, err := apiClient.EpochsAPI.CurrentEpoch(context.Background()).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `EpochsApi.CurrentEpoch``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `EpochsAPI.CurrentEpoch``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `CurrentEpoch`: CurrentEpochInfo
-    fmt.Fprintf(os.Stdout, "Response from `EpochsApi.CurrentEpoch`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `EpochsAPI.CurrentEpoch`: %v\n", resp)
 }
 ```
 
@@ -95,13 +95,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.EpochsApi.EpochInfo(context.Background(), epochNo).Execute()
+    resp, r, err := apiClient.EpochsAPI.EpochInfo(context.Background(), epochNo).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `EpochsApi.EpochInfo``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `EpochsAPI.EpochInfo``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `EpochInfo`: EpochInfo
-    fmt.Fprintf(os.Stdout, "Response from `EpochsApi.EpochInfo`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `EpochsAPI.EpochInfo`: %v\n", resp)
 }
 ```
 

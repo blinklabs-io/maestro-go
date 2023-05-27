@@ -1,4 +1,4 @@
-# Go API client for Maestro dApp Platform
+# Go API client for maestro
 
 The **Maestro Blockchain Indexer API** follows the [REST](https://restfulapi.net/) paradigm. To interact with Mapi, please  head over to [Dashboards](https://dashboard.gomaestro.org), create an API project, and copy its associated long-lived API key into your request header.
 
@@ -34,7 +34,7 @@ go get golang.org/x/net/context
 Put the package under your project folder and add the following in import:
 
 ```golang
-import openapi "github.com/blinklabs-io/maestro-go"
+import maestro "github.com/blinklabs-io/maestro-go"
 ```
 
 To use a proxy, set the environment variable `HTTP_PROXY`:
@@ -52,7 +52,7 @@ Default configuration comes with `Servers` field that contains server objects as
 For using other server than the one defined on index 0 set context value `sw.ContextServerIndex` of type `int`.
 
 ```golang
-ctx := context.WithValue(context.Background(), openapi.ContextServerIndex, 1)
+ctx := context.WithValue(context.Background(), maestro.ContextServerIndex, 1)
 ```
 
 ### Templated Server URL
@@ -60,7 +60,7 @@ ctx := context.WithValue(context.Background(), openapi.ContextServerIndex, 1)
 Templated server URL is formatted using default variables from configuration or from context value `sw.ContextServerVariables` of type `map[string]string`.
 
 ```golang
-ctx := context.WithValue(context.Background(), openapi.ContextServerVariables, map[string]string{
+ctx := context.WithValue(context.Background(), maestro.ContextServerVariables, map[string]string{
 	"basePath": "v2",
 })
 ```
@@ -74,10 +74,10 @@ An operation is uniquely identified by `"{classname}Service.{nickname}"` string.
 Similar rules for overriding default operation server index and variables applies by using `sw.ContextOperationServerIndices` and `sw.ContextOperationServerVariables` context maps.
 
 ```golang
-ctx := context.WithValue(context.Background(), openapi.ContextOperationServerIndices, map[string]int{
+ctx := context.WithValue(context.Background(), maestro.ContextOperationServerIndices, map[string]int{
 	"{classname}Service.{nickname}": 2,
 })
-ctx = context.WithValue(context.Background(), openapi.ContextOperationServerVariables, map[string]map[string]string{
+ctx = context.WithValue(context.Background(), maestro.ContextOperationServerVariables, map[string]map[string]string{
 	"{classname}Service.{nickname}": {
 		"port": "8443",
 	},
@@ -90,46 +90,48 @@ All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AccountsApi* | [**AccountAddresses**](docs/AccountsApi.md#accountaddresses) | **Get** /accounts/{stake_address}/addresses | Stake account addresses
-*AccountsApi* | [**AccountAssets**](docs/AccountsApi.md#accountassets) | **Get** /accounts/{stake_address}/assets | Stake account assets
-*AccountsApi* | [**AccountHistory**](docs/AccountsApi.md#accounthistory) | **Get** /accounts/{stake_address}/history | Stake account history
-*AccountsApi* | [**AccountInfo**](docs/AccountsApi.md#accountinfo) | **Get** /accounts/{stake_address} | Stake account information
-*AccountsApi* | [**AccountRewards**](docs/AccountsApi.md#accountrewards) | **Get** /accounts/{stake_address}/rewards | Stake account rewards
-*AccountsApi* | [**AccountUpdates**](docs/AccountsApi.md#accountupdates) | **Get** /accounts/{stake_address}/updates | Stake account updates
-*AddressesApi* | [**AddressUtxos**](docs/AddressesApi.md#addressutxos) | **Get** /addresses/{address}/utxos | UTxOs at an address
-*AddressesApi* | [**DecodeAddress**](docs/AddressesApi.md#decodeaddress) | **Get** /addresses/{address}/decode | Decoded receiving address information
-*AddressesApi* | [**TxCountByAddress**](docs/AddressesApi.md#txcountbyaddress) | **Get** /addresses/{address}/transactions/count | Transaction count of an address
-*AddressesApi* | [**UtxoRefsAtAddress**](docs/AddressesApi.md#utxorefsataddress) | **Get** /addresses/{address}/utxo_refs | UTxO references at an address
-*AddressesApi* | [**UtxosByAddresses**](docs/AddressesApi.md#utxosbyaddresses) | **Post** /addresses/utxos | UTxOs at multiple addresses
-*AssetsApi* | [**AssetAddresses**](docs/AssetsApi.md#assetaddresses) | **Get** /assets/{asset}/addresses | Native asset addresses
-*AssetsApi* | [**AssetInfo**](docs/AssetsApi.md#assetinfo) | **Get** /assets/{asset} | Native asset information
-*AssetsApi* | [**AssetTxs**](docs/AssetsApi.md#assettxs) | **Get** /assets/{asset}/txs | Native asset transaction
-*AssetsApi* | [**AssetUpdates**](docs/AssetsApi.md#assetupdates) | **Get** /assets/{asset}/updates | Native asset updates
-*AssetsApi* | [**PolicyAddresses**](docs/AssetsApi.md#policyaddresses) | **Get** /assets/policy/{policy}/addresses | Minting policy addresses
-*AssetsApi* | [**PolicyInfo**](docs/AssetsApi.md#policyinfo) | **Get** /assets/policy/{policy} | Minting policy information
-*AssetsApi* | [**PolicyTxs**](docs/AssetsApi.md#policytxs) | **Get** /assets/policy/{policy}/txs | Minting policy transactions
-*AssetsApi* | [**PolicyUtxos**](docs/AssetsApi.md#policyutxos) | **Get** /assets/policy/{policy}/utxos | Minting policy UTxOs
-*DatumApi* | [**LookupDatum**](docs/DatumApi.md#lookupdatum) | **Get** /datum/{datum_hash} | Datum of a datum hash
-*EpochsApi* | [**CurrentEpoch**](docs/EpochsApi.md#currentepoch) | **Get** /epochs/current | Current epoch of the network
-*EpochsApi* | [**EpochInfo**](docs/EpochsApi.md#epochinfo) | **Get** /epochs/{epoch_no}/info | Epoch details
-*GeneralApi* | [**ChainTip**](docs/GeneralApi.md#chaintip) | **Get** /chain-tip | Chain tip details
-*GeneralApi* | [**EraHistory**](docs/GeneralApi.md#erahistory) | **Get** /era-history | Era history
-*GeneralApi* | [**ProtocolParams**](docs/GeneralApi.md#protocolparams) | **Get** /protocol-params | Network protocol parameters
-*GeneralApi* | [**SystemStart**](docs/GeneralApi.md#systemstart) | **Get** /system-start | System start time
-*PoolsApi* | [**ListPools**](docs/PoolsApi.md#listpools) | **Get** /pools | Registered stake pools
-*PoolsApi* | [**PoolBlocks**](docs/PoolsApi.md#poolblocks) | **Get** /pools/{pool_id}/blocks | Stake pool blocks
-*PoolsApi* | [**PoolDelegators**](docs/PoolsApi.md#pooldelegators) | **Get** /pools/{pool_id}/delegators | Stake pool delegators
-*PoolsApi* | [**PoolHistory**](docs/PoolsApi.md#poolhistory) | **Get** /pools/{pool_id}/history | Stake pool history
-*PoolsApi* | [**PoolInfo**](docs/PoolsApi.md#poolinfo) | **Get** /pools/{pool_id}/info | Stake pool details
-*PoolsApi* | [**PoolMetadata**](docs/PoolsApi.md#poolmetadata) | **Get** /pools/{pool_id}/metadata | Stake pool metadata
-*PoolsApi* | [**PoolRelays**](docs/PoolsApi.md#poolrelays) | **Get** /pools/{pool_id}/relays | Stake pool relays
-*PoolsApi* | [**PoolUpdates**](docs/PoolsApi.md#poolupdates) | **Get** /pools/{pool_id}/updates | Stake pool updates
-*ScriptsApi* | [**ScriptByHash**](docs/ScriptsApi.md#scriptbyhash) | **Get** /scripts/{script_hash} | Script of a script hash
-*TransactionsApi* | [**AddressByTxo**](docs/TransactionsApi.md#addressbytxo) | **Get** /transactions/{tx_hash}/outputs/{index}/address | Address of a transaction output reference
-*TransactionsApi* | [**IogTxSubmit**](docs/TransactionsApi.md#iogtxsubmit) | **Post** /submit/tx | Submit transaction
-*TransactionsApi* | [**MaestroTxSubmit**](docs/TransactionsApi.md#maestrotxsubmit) | **Post** /transactions | Submit transaction
-*TransactionsApi* | [**TxCborByTxHash**](docs/TransactionsApi.md#txcborbytxhash) | **Get** /transactions/{tx_hash}/cbor | CBOR bytes of a transaction
-*TransactionsApi* | [**UtxoByTxoRef**](docs/TransactionsApi.md#utxobytxoref) | **Get** /transactions/{tx_hash}/outputs/{index}/utxo | Transaction output of an output reference
+*AccountsAPI* | [**AccountAddresses**](docs/AccountsAPI.md#accountaddresses) | **Get** /accounts/{stake_address}/addresses | Stake account addresses
+*AccountsAPI* | [**AccountAssets**](docs/AccountsAPI.md#accountassets) | **Get** /accounts/{stake_address}/assets | Stake account assets
+*AccountsAPI* | [**AccountHistory**](docs/AccountsAPI.md#accounthistory) | **Get** /accounts/{stake_address}/history | Stake account history
+*AccountsAPI* | [**AccountInfo**](docs/AccountsAPI.md#accountinfo) | **Get** /accounts/{stake_address} | Stake account information
+*AccountsAPI* | [**AccountRewards**](docs/AccountsAPI.md#accountrewards) | **Get** /accounts/{stake_address}/rewards | Stake account rewards
+*AccountsAPI* | [**AccountUpdates**](docs/AccountsAPI.md#accountupdates) | **Get** /accounts/{stake_address}/updates | Stake account updates
+*AddressesAPI* | [**AddressUtxos**](docs/AddressesAPI.md#addressutxos) | **Get** /addresses/{address}/utxos | UTxOs at an address
+*AddressesAPI* | [**DecodeAddress**](docs/AddressesAPI.md#decodeaddress) | **Get** /addresses/{address}/decode | Decoded receiving address information
+*AddressesAPI* | [**TxCountByAddress**](docs/AddressesAPI.md#txcountbyaddress) | **Get** /addresses/{address}/transactions/count | Transaction count of an address
+*AddressesAPI* | [**UtxoRefsAtAddress**](docs/AddressesAPI.md#utxorefsataddress) | **Get** /addresses/{address}/utxo_refs | UTxO references at an address
+*AddressesAPI* | [**UtxosByAddresses**](docs/AddressesAPI.md#utxosbyaddresses) | **Post** /addresses/utxos | UTxOs at multiple addresses
+*AssetsAPI* | [**AssetAddresses**](docs/AssetsAPI.md#assetaddresses) | **Get** /assets/{asset}/addresses | Native asset addresses
+*AssetsAPI* | [**AssetInfo**](docs/AssetsAPI.md#assetinfo) | **Get** /assets/{asset} | Native asset information
+*AssetsAPI* | [**AssetTxs**](docs/AssetsAPI.md#assettxs) | **Get** /assets/{asset}/txs | Native asset transaction
+*AssetsAPI* | [**AssetUpdates**](docs/AssetsAPI.md#assetupdates) | **Get** /assets/{asset}/updates | Native asset updates
+*AssetsAPI* | [**AssetUtxos**](docs/AssetsAPI.md#assetutxos) | **Get** /assets/{asset}/utxos | Native asset UTxOs
+*AssetsAPI* | [**PolicyAddresses**](docs/AssetsAPI.md#policyaddresses) | **Get** /assets/policy/{policy}/addresses | Minting policy addresses
+*AssetsAPI* | [**PolicyInfo**](docs/AssetsAPI.md#policyinfo) | **Get** /assets/policy/{policy} | Minting policy information
+*AssetsAPI* | [**PolicyTxs**](docs/AssetsAPI.md#policytxs) | **Get** /assets/policy/{policy}/txs | Minting policy transactions
+*AssetsAPI* | [**PolicyUtxos**](docs/AssetsAPI.md#policyutxos) | **Get** /assets/policy/{policy}/utxos | Minting policy UTxOs
+*DatumAPI* | [**LookupDatum**](docs/DatumAPI.md#lookupdatum) | **Get** /datum/{datum_hash} | Datum of a datum hash
+*EpochsAPI* | [**CurrentEpoch**](docs/EpochsAPI.md#currentepoch) | **Get** /epochs/current | Current epoch of the network
+*EpochsAPI* | [**EpochInfo**](docs/EpochsAPI.md#epochinfo) | **Get** /epochs/{epoch_no}/info | Epoch details
+*GeneralAPI* | [**ChainTip**](docs/GeneralAPI.md#chaintip) | **Get** /chain-tip | Chain tip details
+*GeneralAPI* | [**EraHistory**](docs/GeneralAPI.md#erahistory) | **Get** /era-history | Era history
+*GeneralAPI* | [**ProtocolParams**](docs/GeneralAPI.md#protocolparams) | **Get** /protocol-params | Network protocol parameters
+*GeneralAPI* | [**SystemStart**](docs/GeneralAPI.md#systemstart) | **Get** /system-start | System start time
+*PoolsAPI* | [**ListPools**](docs/PoolsAPI.md#listpools) | **Get** /pools | Registered stake pools
+*PoolsAPI* | [**PoolBlocks**](docs/PoolsAPI.md#poolblocks) | **Get** /pools/{pool_id}/blocks | Stake pool blocks
+*PoolsAPI* | [**PoolDelegators**](docs/PoolsAPI.md#pooldelegators) | **Get** /pools/{pool_id}/delegators | Stake pool delegators
+*PoolsAPI* | [**PoolHistory**](docs/PoolsAPI.md#poolhistory) | **Get** /pools/{pool_id}/history | Stake pool history
+*PoolsAPI* | [**PoolInfo**](docs/PoolsAPI.md#poolinfo) | **Get** /pools/{pool_id}/info | Stake pool details
+*PoolsAPI* | [**PoolMetadata**](docs/PoolsAPI.md#poolmetadata) | **Get** /pools/{pool_id}/metadata | Stake pool metadata
+*PoolsAPI* | [**PoolRelays**](docs/PoolsAPI.md#poolrelays) | **Get** /pools/{pool_id}/relays | Stake pool relays
+*PoolsAPI* | [**PoolUpdates**](docs/PoolsAPI.md#poolupdates) | **Get** /pools/{pool_id}/updates | Stake pool updates
+*ScriptsAPI* | [**ScriptByHash**](docs/ScriptsAPI.md#scriptbyhash) | **Get** /scripts/{script_hash} | Script of a script hash
+*TransactionsAPI* | [**AddressByTxo**](docs/TransactionsAPI.md#addressbytxo) | **Get** /transactions/{tx_hash}/outputs/{index}/address | Address of a transaction output reference
+*TransactionsAPI* | [**IogTxSubmit**](docs/TransactionsAPI.md#iogtxsubmit) | **Post** /submit/tx | Submit transaction
+*TransactionsAPI* | [**MaestroTxSubmit**](docs/TransactionsAPI.md#maestrotxsubmit) | **Post** /transactions | Submit transaction
+*TransactionsAPI* | [**TxCborByTxHash**](docs/TransactionsAPI.md#txcborbytxhash) | **Get** /transactions/{tx_hash}/cbor | CBOR bytes of a transaction
+*TransactionsAPI* | [**TxInfo**](docs/TransactionsAPI.md#txinfo) | **Get** /transactions/{tx_hash} | Transaction information
+*TransactionsAPI* | [**UtxoByTxoRef**](docs/TransactionsAPI.md#utxobytxoref) | **Get** /transactions/{tx_hash}/outputs/{index}/utxo | Transaction output of an output reference
 
 
 ## Documentation For Models
@@ -215,7 +217,7 @@ Class | Method | HTTP request | Description
 ## Documentation For Authorization
 
 
-
+Authentication schemes defined for the API:
 ### api_key_header
 
 - **Type**: API key

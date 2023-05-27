@@ -1,15 +1,15 @@
-# \AccountsApi
+# \AccountsAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**AccountAddresses**](AccountsApi.md#AccountAddresses) | **Get** /accounts/{stake_address}/addresses | Stake account addresses
-[**AccountAssets**](AccountsApi.md#AccountAssets) | **Get** /accounts/{stake_address}/assets | Stake account assets
-[**AccountHistory**](AccountsApi.md#AccountHistory) | **Get** /accounts/{stake_address}/history | Stake account history
-[**AccountInfo**](AccountsApi.md#AccountInfo) | **Get** /accounts/{stake_address} | Stake account information
-[**AccountRewards**](AccountsApi.md#AccountRewards) | **Get** /accounts/{stake_address}/rewards | Stake account rewards
-[**AccountUpdates**](AccountsApi.md#AccountUpdates) | **Get** /accounts/{stake_address}/updates | Stake account updates
+[**AccountAddresses**](AccountsAPI.md#AccountAddresses) | **Get** /accounts/{stake_address}/addresses | Stake account addresses
+[**AccountAssets**](AccountsAPI.md#AccountAssets) | **Get** /accounts/{stake_address}/assets | Stake account assets
+[**AccountHistory**](AccountsAPI.md#AccountHistory) | **Get** /accounts/{stake_address}/history | Stake account history
+[**AccountInfo**](AccountsAPI.md#AccountInfo) | **Get** /accounts/{stake_address} | Stake account information
+[**AccountRewards**](AccountsAPI.md#AccountRewards) | **Get** /accounts/{stake_address}/rewards | Stake account rewards
+[**AccountUpdates**](AccountsAPI.md#AccountUpdates) | **Get** /accounts/{stake_address}/updates | Stake account updates
 
 
 
@@ -40,13 +40,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AccountsApi.AccountAddresses(context.Background(), stakeAddress).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AccountsAPI.AccountAddresses(context.Background(), stakeAddress).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AccountsApi.AccountAddresses``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AccountsAPI.AccountAddresses``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AccountAddresses`: []string
-    fmt.Fprintf(os.Stdout, "Response from `AccountsApi.AccountAddresses`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AccountsAPI.AccountAddresses`: %v\n", resp)
 }
 ```
 
@@ -114,13 +114,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AccountsApi.AccountAssets(context.Background(), stakeAddress).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AccountsAPI.AccountAssets(context.Background(), stakeAddress).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AccountsApi.AccountAssets``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AccountsAPI.AccountAssets``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AccountAssets`: []Asset
-    fmt.Fprintf(os.Stdout, "Response from `AccountsApi.AccountAssets`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AccountsAPI.AccountAssets`: %v\n", resp)
 }
 ```
 
@@ -189,13 +189,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AccountsApi.AccountHistory(context.Background(), stakeAddress).EpochNo(epochNo).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AccountsAPI.AccountHistory(context.Background(), stakeAddress).EpochNo(epochNo).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AccountsApi.AccountHistory``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AccountsAPI.AccountHistory``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AccountHistory`: []AccountHistory
-    fmt.Fprintf(os.Stdout, "Response from `AccountsApi.AccountHistory`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AccountsAPI.AccountHistory`: %v\n", resp)
 }
 ```
 
@@ -262,13 +262,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AccountsApi.AccountInfo(context.Background(), stakeAddress).Execute()
+    resp, r, err := apiClient.AccountsAPI.AccountInfo(context.Background(), stakeAddress).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AccountsApi.AccountInfo``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AccountsAPI.AccountInfo``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AccountInfo`: AccountInfo
-    fmt.Fprintf(os.Stdout, "Response from `AccountsApi.AccountInfo`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AccountsAPI.AccountInfo`: %v\n", resp)
 }
 ```
 
@@ -334,13 +334,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AccountsApi.AccountRewards(context.Background(), stakeAddress).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AccountsAPI.AccountRewards(context.Background(), stakeAddress).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AccountsApi.AccountRewards``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AccountsAPI.AccountRewards``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AccountRewards`: []AccountReward
-    fmt.Fprintf(os.Stdout, "Response from `AccountsApi.AccountRewards`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AccountsAPI.AccountRewards`: %v\n", resp)
 }
 ```
 
@@ -408,13 +408,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AccountsApi.AccountUpdates(context.Background(), stakeAddress).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AccountsAPI.AccountUpdates(context.Background(), stakeAddress).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AccountsApi.AccountUpdates``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AccountsAPI.AccountUpdates``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AccountUpdates`: []AccountUpdate
-    fmt.Fprintf(os.Stdout, "Response from `AccountsApi.AccountUpdates`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AccountsAPI.AccountUpdates`: %v\n", resp)
 }
 ```
 

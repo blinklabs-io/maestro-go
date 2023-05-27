@@ -23,6 +23,9 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.txt
   title: Blockchain Indexer API
   version: V0
+externalDocs:
+  description: Download
+  url: https://reference.gomaestro.org/openapi.json
 servers:
 - description: Cardano Mainnet
   url: https://mainnet.gomaestro-api.org/v0
@@ -1220,6 +1223,82 @@ paths:
       summary: Native asset updates
       tags:
       - Assets
+  /assets/{asset}/utxos:
+    get:
+      deprecated: false
+      description: "Returns UTxOs containing the specified asset, each paired with\
+        \ the amount of the asset"
+      operationId: asset_utxos
+      parameters:
+      - deprecated: false
+        description: "Asset, encoded as concatenation of hex of policy ID and asset\
+          \ name"
+        explode: false
+        in: path
+        name: asset
+        required: true
+        schema:
+          type: string
+        style: simple
+      - deprecated: false
+        description: The max number of results per page
+        explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          type: integer
+        style: form
+      - deprecated: false
+        description: The page number for the results
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                  - - tx_hash: 000553ebc359a2c7d5d02b4f26930275736bc606c65e4d3c92410d307415bb0e
+                      index: 1
+                      address: addr1qy9wxa7u0d5yzuwvff7lc4m2ugcjactzemp8thwj6wl2wl64gqvjqq2xr4dg6lwc5zn6nlwddh688w7jh2e7nnqkw9uqqyl3kn
+                      amount: 89131981
+                    - tx_hash: 00772541fbed9bcdf0ed96681593f44c35ec7929c8c38b31880d9ba4cdf47268
+                      index: 1
+                      address: addr1q8tsufvgea9f945he9st6n39wnex6hsjvxgkrjnun5nj774awvhgtvltqkt9uwcqkv6gjnulm9h8glafs0rkf2tjghrqzd02h0
+                      amount: 1548202
+                    - tx_hash: 011094e5e79cb263457b2445da17bdcf1f68a66e2ca39c183a644bd39fe15a32
+                      index: 1
+                      address: addr1q9kw2qvmldjvsenclmzhwj405955rml55upz98t5ffcg6qgzrz99v6d5w8zwgzn9zwvmymwga673r2qcy898xfhdm6msfp5c8j
+                      amount: 3730319
+                    - tx_hash: 025941a991dee683bbd9e05e0d18c3b042bb250616621f7f7fc47f7c14016a39
+                      index: 0
+                      address: addr1q976fn7dnn9nfkte8ccs44dhpk7hhfeqtwlh24xk76wrgpx26q5z3jtzgdvn5g34z0ahqqjzf0fy0mnx2uh8g5n9u3qsp9at0h
+                      amount: 5013494
+                    - tx_hash: 051fee787228d7e18129140c24b121fbe3dfd5ca8e7b3fd0becf00474240fd6e
+                      index: 0
+                      address: addr1w8pydstdswmdqmg2rdt59dzql3zgfp9pt8sulnjgalycwdsj9js7w
+                      amount: 4000000
+              schema:
+                items:
+                  $ref: '#/components/schemas/AssetUtxo'
+                type: array
+          description: ""
+        "400":
+          description: Malformed query parameters
+        "500":
+          description: Internal server error
+      summary: Native asset UTxOs
+      tags:
+      - Assets
   /assets/policy/{policy}:
     get:
       deprecated: false
@@ -1289,8 +1368,8 @@ paths:
                   value:
                   - asset_name: c39b11e90cb2a5367d85b80e81bd9403f36b22ea0a6eed7f6fdc0872af1517c1
                     asset_name_ascii: "\\303\\233\x11\\351\f\\262\\2456}\\205\\270\x0e\
-                      \\201\\275\\224\x03\\363k\"\\352\nn\\355\x7fo\\334\br\\257\x15\
-                      \x17\\301"
+                      \\201\\275\\224\x03\\363k\"\\352\nn\\355o\\334\br\\257\x15\x17\
+                      \\301"
                     fingerprint: asset1rgt2g7cfm2yvtwwaxfhtxcnxjh4jajt06nma0y
                     first_mint_tx: 07c1971ab8f5a575ff67f79c5a50632f2f964373b0c249f01cf86b51ca4e559c
                     first_mint_time: 1673222400
@@ -2330,6 +2409,155 @@ paths:
       summary: Submit transaction
       tags:
       - Transactions
+  /transactions/{tx_hash}:
+    get:
+      deprecated: false
+      description: Returns information about a transaction
+      operationId: tx_info
+      parameters:
+      - description: Hex encoded transaction hash
+        explode: false
+        in: path
+        name: tx_hash
+        required: true
+        schema:
+          example: 9907c1bcab96889368d975ec1964e2fedfef22ce4a0e367bf9cb621b9f0dcb4a
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    tx_hash: 4c79886edbea4ce88985c36fd65191eddab117e7f108a7c18d91c4ddb5c5b96a
+                    block_hash: 7ae20bca8c9d202b731fe33a22310403f8772cf52ca9939ac6c50c75b2062479
+                    block_tx_index: 12
+                    block_height: 8080194
+                    block_timestamp: 1669826697
+                    block_absolute_slot: 78260406
+                    inputs:
+                    - tx_hash: 7f37db11c4466549198036bedb8c1e924e2bdba52c8582dc1fb05940f00a810d
+                      index: 4
+                      assets:
+                      - unit: lovelace
+                        quantity: 5000000
+                      address: addr1q953ppkxrr95h03dwfaansh5xqj9vg652mxwl7n2rmgffvf06y2y9sz2fx9fx3wa3fhmrpc63fyx6xpghfjkqljx28rsc0nsgd
+                      datum: null
+                      reference_script: null
+                    - tx_hash: b6b7338889d1450b8b745085e54b1ae1c120c7a4ca5f98ec5501fdefcc327755
+                      index: 0
+                      assets:
+                      - unit: lovelace
+                        quantity: 1314550
+                      - unit: bbb6c713c497b8a9c3390a2157bac72d730ce842b27b5672d3b3d51f#476f617469613034393431
+                        quantity: 1
+                      address: addr1zxgx3far7qygq0k6epa0zcvcvrevmn0ypsnfsue94nsn3tvpw288a4x0xf8pxgcntelxmyclq83s0ykeehchz2wtspks905plm
+                      datum:
+                        type: hash
+                        hash: 753c802d7cc9cb5707a4d82397d48859b992faa02a63a893395c168ba5e16959
+                        bytes: d8799f581c691086c618cb4bbe2d727bd9c2f4...
+                        json:
+                          constructor: 0
+                          fields:
+                          - '...'
+                      reference_script: null
+                    outputs:
+                    - tx_hash: 4c79886edbea4ce88985c36fd65191eddab117e7f108a7c18d91c4ddb5c5b96a
+                      index: 0
+                      assets:
+                      - unit: lovelace
+                        quantity: 1314550
+                      - unit: bbb6c713c497b8a9c3390a2157bac72d730ce842b27b5672d3b3d51f#476f617469613034393431
+                        quantity: 1
+                      address: addr1zxgx3far7qygq0k6epa0zcvcvrevmn0ypsnfsue94nsn3tvpw288a4x0xf8pxgcntelxmyclq83s0ykeehchz2wtspks905plm
+                      datum:
+                        type: hash
+                        hash: da82a8994de99e80e9f78f1e67145cba8c21d1c5b2942338678bcc72e8effde3
+                        bytes: d8799f581c691086c618cb4bbe2d727bd9c2f430245623...
+                        json:
+                          constructor: 0
+                          fields:
+                          - '...'
+                      reference_script: null
+                    - tx_hash: 4c79886edbea4ce88985c36fd65191eddab117e7f108a7c18d91c4ddb5c5b96a
+                      index: 1
+                      assets:
+                      - unit: lovelace
+                        quantity: 4702646
+                      address: addr1q953ppkxrr95h03dwfaansh5xqj9vg652mxwl7n2rmgffvf0...
+                      datum: null
+                      reference_script: null
+                    reference_inputs:
+                    - tx_hash: 9a32459bd4ef6bbafdeb8cf3b909d0e3e2ec806e4cc6268529280b0fc1d06f5b
+                      index: 0
+                      assets:
+                      - unit: lovelace
+                        quantity: 40000000
+                      address: addr1zxgx3far7qygq0k6epa0zcvcvrevmn0yp...
+                      datum: null
+                      reference_script:
+                        hash: 9068a7a3f008803edac87af1619860f2cdcde40c26987325ace138ad
+                        type: plutusv2
+                        bytes: 590a015909fe01000032323232323232323...
+                        json: null
+                    collateral_inputs:
+                    - tx_hash: ff0abeff7303c6c579c1aa27fff59a8839a5759056516f51a6b1f381762b6d13
+                      index: 1
+                      assets:
+                      - unit: lovelace
+                        quantity: 5000000
+                      address: addr1q953ppkxrr95h03dwfaansh5xqj9vg652mx...
+                      datum: null
+                      reference_script: null
+                    collateral_return: null
+                    mint: []
+                    invalid_before: 78260332
+                    invalid_hereafter: 78263032
+                    certificates:
+                      stake_registrations: []
+                      stake_deregistrations: []
+                      stake_delegations: []
+                      pool_registrations: []
+                      pool_retirements: []
+                      mir_transfers: []
+                    withdrawals: []
+                    additional_signers:
+                    - 691086c618cb4bbe2d727bd9c2f43024...
+                    scripts_executed:
+                    - hash: 9068a7a3f008803edac87af1619860f2cd...
+                      type: plutusv2
+                      bytes: 590a015909fe010000323232323232323...
+                      json: null
+                    scripts_successful: true
+                    redeemers:
+                      spends:
+                      - input_index: 1
+                        data:
+                          json:
+                            constructor: 0
+                            fields: []
+                          bytes: d87980
+                        ex_units:
+                        - 856768
+                        - 281403801
+                      mints: []
+                      withdrawals: []
+                      certificates: []
+                    metadata:
+                      "0": d8799f581c691086c618cb4bbe2d727bd9c2f4302456235456cceffa6a1ed094
+                      "1": b19fd8799fd8799fd8799f581ca668f40ee88af0c81490eded467c08fdf7fa5e
+              schema:
+                $ref: '#/components/schemas/TransactionInfo'
+          description: ""
+        "404":
+          description: No results found
+        "500":
+          description: Internal server error
+      summary: Transaction information
+      tags:
+      - Transactions
   /transactions/{tx_hash}/cbor:
     get:
       deprecated: false
@@ -2992,6 +3220,11 @@ components:
       type: object
     AssetUtxo:
       description: UTxO which contains a specific asset
+      example:
+        amount: 0
+        address: address
+        index: 6
+        tx_hash: tx_hash
       properties:
         address:
           description: Address which controls the UTxO
@@ -3033,6 +3266,12 @@ components:
       - time
       type: object
     CertRedeemer:
+      example:
+        ex_units: 4
+        cert_index: 1
+        data:
+          bytes: bytes
+          json: "{}"
       properties:
         cert_index:
           type: integer
@@ -3048,6 +3287,87 @@ components:
       type: object
     Certificates:
       description: Certificates found in a transaction
+      example:
+        mir_transfers:
+        - cert_index: 5
+          from: null
+          to: to
+        - cert_index: 5
+          from: null
+          to: to
+        stake_registrations:
+        - cert_index: 1
+          stake_address: stake_address
+        - cert_index: 1
+          stake_address: stake_address
+        pool_registrations:
+        - cert_index: 2
+          owner_addresses:
+          - owner_addresses
+          - owner_addresses
+          from_epoch: 9
+          margin: 3.6160767
+          reward_address: reward_address
+          metadata_url: metadata_url
+          metadata_hash: metadata_hash
+          relays:
+          - ipv4: ipv4
+            port: 4
+            ipv6: ipv6
+            srv: srv
+            dns: dns
+          - ipv4: ipv4
+            port: 4
+            ipv6: ipv6
+            srv: srv
+            dns: dns
+          vrf_key_hash: vrf_key_hash
+          pledge: 2
+          pool_id: pool_id
+          fixed_cost: 7
+        - cert_index: 2
+          owner_addresses:
+          - owner_addresses
+          - owner_addresses
+          from_epoch: 9
+          margin: 3.6160767
+          reward_address: reward_address
+          metadata_url: metadata_url
+          metadata_hash: metadata_hash
+          relays:
+          - ipv4: ipv4
+            port: 4
+            ipv6: ipv6
+            srv: srv
+            dns: dns
+          - ipv4: ipv4
+            port: 4
+            ipv6: ipv6
+            srv: srv
+            dns: dns
+          vrf_key_hash: vrf_key_hash
+          pledge: 2
+          pool_id: pool_id
+          fixed_cost: 7
+        pool_retirements:
+        - cert_index: 7
+          after_epoch: 4
+          pool_id: pool_id
+        - cert_index: 7
+          after_epoch: 4
+          pool_id: pool_id
+        stake_delegations:
+        - cert_index: 1
+          stake_address: stake_address
+          pool_id: pool_id
+        - cert_index: 1
+          stake_address: stake_address
+          pool_id: pool_id
+        stake_deregistrations:
+        - cert_index: 1
+          stake_address: stake_address
+        - cert_index: 1
+          stake_address: stake_address
       properties:
         mir_transfers:
           items:
@@ -3329,6 +3649,9 @@ components:
       type: object
     MintAsset:
       description: Lovelace or native asset
+      example:
+        unit: unit
+        quantity: 7
       properties:
         quantity:
           description: Amount of the asset minted or burned (negative is burn)
@@ -3342,6 +3665,12 @@ components:
       - unit
       type: object
     MintRedeemer:
+      example:
+        ex_units: 5
+        data:
+          bytes: bytes
+          json: "{}"
+        policy: policy
       properties:
         data:
           $ref: '#/components/schemas/Datum'
@@ -3383,6 +3712,10 @@ components:
       type: object
     MirCert:
       description: Certificate for sending an instantaneous reward
+      example:
+        cert_index: 5
+        from: null
+        to: to
       properties:
         cert_index:
           description: Index of the certificate in the transaction
@@ -3803,6 +4136,31 @@ components:
       type: object
     PoolRegCert:
       description: Certificate for registering or updating a stake pool
+      example:
+        cert_index: 2
+        owner_addresses:
+        - owner_addresses
+        - owner_addresses
+        from_epoch: 9
+        margin: 3.6160767
+        reward_address: reward_address
+        metadata_url: metadata_url
+        metadata_hash: metadata_hash
+        relays:
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        - ipv4: ipv4
+          port: 4
+          ipv6: ipv6
+          srv: srv
+          dns: dns
+        vrf_key_hash: vrf_key_hash
+        pledge: 2
+        pool_id: pool_id
+        fixed_cost: 7
       properties:
         cert_index:
           description: Index of the certificate in the transaction
@@ -3888,6 +4246,10 @@ components:
       type: object
     PoolRetireCert:
       description: Certificate for retiring a stake pool
+      example:
+        cert_index: 7
+        after_epoch: 4
+        pool_id: pool_id
       properties:
         after_epoch:
           description: Pool will be retired at the end of this epoch
@@ -4148,6 +4510,51 @@ components:
       - treasury_expansion
       type: object
     Redeemers:
+      example:
+        mints:
+        - ex_units: 5
+          data:
+            bytes: bytes
+            json: "{}"
+          policy: policy
+        - ex_units: 5
+          data:
+            bytes: bytes
+            json: "{}"
+          policy: policy
+        spends:
+        - ex_units: 9
+          data:
+            bytes: bytes
+            json: "{}"
+          input_index: 9
+        - ex_units: 9
+          data:
+            bytes: bytes
+            json: "{}"
+          input_index: 9
+        certificates:
+        - ex_units: 4
+          cert_index: 1
+          data:
+            bytes: bytes
+            json: "{}"
+        - ex_units: 4
+          cert_index: 1
+          data:
+            bytes: bytes
+            json: "{}"
+        withdrawals:
+        - ex_units: 6
+          data:
+            bytes: bytes
+            json: "{}"
+          stake_address: stake_address
+        - ex_units: 6
+          data:
+            bytes: bytes
+            json: "{}"
+          stake_address: stake_address
       properties:
         certificates:
           items:
@@ -4222,6 +4629,12 @@ components:
       - plutusv2
       type: string
     SpendRedeemer:
+      example:
+        ex_units: 9
+        data:
+          bytes: bytes
+          json: "{}"
+        input_index: 9
       properties:
         data:
           $ref: '#/components/schemas/Datum'
@@ -4237,6 +4650,10 @@ components:
       type: object
     StakeDelegCert:
       description: Certificate for stake key delegation
+      example:
+        cert_index: 1
+        stake_address: stake_address
+        pool_id: pool_id
       properties:
         cert_index:
           description: Index of the certificate in the transaction
@@ -4254,6 +4671,9 @@ components:
       type: object
     StakeRegCert:
       description: Certificate for registering a stake key
+      example:
+        cert_index: 1
+        stake_address: stake_address
       properties:
         cert_index:
           description: Index of the certificate in the transaction
@@ -4343,6 +4763,332 @@ components:
       type: object
     TransactionInfo:
       description: Transaction Information
+      example:
+        collateral_inputs:
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        outputs:
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        block_tx_index: 5
+        metadata: "{}"
+        scripts_executed:
+        - bytes: bytes
+          json: "{}"
+          type: null
+          hash: hash
+        - bytes: bytes
+          json: "{}"
+          type: null
+          hash: hash
+        inputs:
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        collateral_return:
+          datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        block_hash: block_hash
+        tx_hash: tx_hash
+        block_height: 6
+        additional_signers:
+        - additional_signers
+        - additional_signers
+        block_absolute_slot: 0
+        invalid_hereafter: 6
+        withdrawals:
+        - amount: 8
+          stake_address: stake_address
+        - amount: 8
+          stake_address: stake_address
+        mint:
+        - unit: unit
+          quantity: 7
+        - unit: unit
+          quantity: 7
+        redeemers:
+          mints:
+          - ex_units: 5
+            data:
+              bytes: bytes
+              json: "{}"
+            policy: policy
+          - ex_units: 5
+            data:
+              bytes: bytes
+              json: "{}"
+            policy: policy
+          spends:
+          - ex_units: 9
+            data:
+              bytes: bytes
+              json: "{}"
+            input_index: 9
+          - ex_units: 9
+            data:
+              bytes: bytes
+              json: "{}"
+            input_index: 9
+          certificates:
+          - ex_units: 4
+            cert_index: 1
+            data:
+              bytes: bytes
+              json: "{}"
+          - ex_units: 4
+            cert_index: 1
+            data:
+              bytes: bytes
+              json: "{}"
+          withdrawals:
+          - ex_units: 6
+            data:
+              bytes: bytes
+              json: "{}"
+            stake_address: stake_address
+          - ex_units: 6
+            data:
+              bytes: bytes
+              json: "{}"
+            stake_address: stake_address
+        certificates:
+          mir_transfers:
+          - cert_index: 5
+            from: null
+            to: to
+          - cert_index: 5
+            from: null
+            to: to
+          stake_registrations:
+          - cert_index: 1
+            stake_address: stake_address
+          - cert_index: 1
+            stake_address: stake_address
+          pool_registrations:
+          - cert_index: 2
+            owner_addresses:
+            - owner_addresses
+            - owner_addresses
+            from_epoch: 9
+            margin: 3.6160767
+            reward_address: reward_address
+            metadata_url: metadata_url
+            metadata_hash: metadata_hash
+            relays:
+            - ipv4: ipv4
+              port: 4
+              ipv6: ipv6
+              srv: srv
+              dns: dns
+            - ipv4: ipv4
+              port: 4
+              ipv6: ipv6
+              srv: srv
+              dns: dns
+            vrf_key_hash: vrf_key_hash
+            pledge: 2
+            pool_id: pool_id
+            fixed_cost: 7
+          - cert_index: 2
+            owner_addresses:
+            - owner_addresses
+            - owner_addresses
+            from_epoch: 9
+            margin: 3.6160767
+            reward_address: reward_address
+            metadata_url: metadata_url
+            metadata_hash: metadata_hash
+            relays:
+            - ipv4: ipv4
+              port: 4
+              ipv6: ipv6
+              srv: srv
+              dns: dns
+            - ipv4: ipv4
+              port: 4
+              ipv6: ipv6
+              srv: srv
+              dns: dns
+            vrf_key_hash: vrf_key_hash
+            pledge: 2
+            pool_id: pool_id
+            fixed_cost: 7
+          pool_retirements:
+          - cert_index: 7
+            after_epoch: 4
+            pool_id: pool_id
+          - cert_index: 7
+            after_epoch: 4
+            pool_id: pool_id
+          stake_delegations:
+          - cert_index: 1
+            stake_address: stake_address
+            pool_id: pool_id
+          - cert_index: 1
+            stake_address: stake_address
+            pool_id: pool_id
+          stake_deregistrations:
+          - cert_index: 1
+            stake_address: stake_address
+          - cert_index: 1
+            stake_address: stake_address
+        scripts_successful: true
+        block_timestamp: 1
+        reference_inputs:
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        - datum:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          reference_script:
+            bytes: bytes
+            json: "{}"
+            type: null
+            hash: hash
+          address: address
+          assets:
+          - unit: unit
+            quantity: 0
+          - unit: unit
+            quantity: 0
+          index: 0
+          tx_hash: tx_hash
+        invalid_before: 1
       properties:
         additional_signers:
           items:
@@ -4584,6 +5330,12 @@ components:
       - minor
       type: object
     WdrlRedeemer:
+      example:
+        ex_units: 6
+        data:
+          bytes: bytes
+          json: "{}"
+        stake_address: stake_address
       properties:
         data:
           $ref: '#/components/schemas/Datum'
@@ -4598,6 +5350,9 @@ components:
       - stake_address
       type: object
     Withdrawal:
+      example:
+        amount: 8
+        stake_address: stake_address
       properties:
         amount:
           format: int64

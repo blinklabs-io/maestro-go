@@ -1,18 +1,18 @@
-# \ScriptsApi
+# \DatumAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**ScriptByHash**](ScriptsApi.md#ScriptByHash) | **Get** /scripts/{script_hash} | Script of a script hash
+[**LookupDatum**](DatumAPI.md#LookupDatum) | **Get** /datum/{datum_hash} | Datum of a datum hash
 
 
 
-## ScriptByHash
+## LookupDatum
 
-> Script ScriptByHash(ctx, scriptHash).Execute()
+> Datum LookupDatum(ctx, datumHash).Execute()
 
-Script of a script hash
+Datum of a datum hash
 
 
 
@@ -29,17 +29,17 @@ import (
 )
 
 func main() {
-    scriptHash := "3a888d65f16790950a72daee1f63aa05add6d268434107cfa5b67712" // string | Hex encoded script hash
+    datumHash := "432cb73420839fb517533c365d7ec125c457ea4ba5c0349be81be6796d52ef3b" // string | Hex encoded datum hash
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScriptsApi.ScriptByHash(context.Background(), scriptHash).Execute()
+    resp, r, err := apiClient.DatumAPI.LookupDatum(context.Background(), datumHash).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScriptsApi.ScriptByHash``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `DatumAPI.LookupDatum``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `ScriptByHash`: Script
-    fmt.Fprintf(os.Stdout, "Response from `ScriptsApi.ScriptByHash`: %v\n", resp)
+    // response from `LookupDatum`: Datum
+    fmt.Fprintf(os.Stdout, "Response from `DatumAPI.LookupDatum`: %v\n", resp)
 }
 ```
 
@@ -49,11 +49,11 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**scriptHash** | **string** | Hex encoded script hash | 
+**datumHash** | **string** | Hex encoded datum hash | 
 
 ### Other Parameters
 
-Other parameters are passed through a pointer to a apiScriptByHashRequest struct via the builder pattern
+Other parameters are passed through a pointer to a apiLookupDatumRequest struct via the builder pattern
 
 
 Name | Type | Description  | Notes
@@ -62,7 +62,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Script**](Script.md)
+[**Datum**](Datum.md)
 
 ### Authorization
 

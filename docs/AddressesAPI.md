@@ -1,14 +1,14 @@
-# \AddressesApi
+# \AddressesAPI
 
 All URIs are relative to *https://mainnet.gomaestro-api.org/v0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**AddressUtxos**](AddressesApi.md#AddressUtxos) | **Get** /addresses/{address}/utxos | UTxOs at an address
-[**DecodeAddress**](AddressesApi.md#DecodeAddress) | **Get** /addresses/{address}/decode | Decoded receiving address information
-[**TxCountByAddress**](AddressesApi.md#TxCountByAddress) | **Get** /addresses/{address}/transactions/count | Transaction count of an address
-[**UtxoRefsAtAddress**](AddressesApi.md#UtxoRefsAtAddress) | **Get** /addresses/{address}/utxo_refs | UTxO references at an address
-[**UtxosByAddresses**](AddressesApi.md#UtxosByAddresses) | **Post** /addresses/utxos | UTxOs at multiple addresses
+[**AddressUtxos**](AddressesAPI.md#AddressUtxos) | **Get** /addresses/{address}/utxos | UTxOs at an address
+[**DecodeAddress**](AddressesAPI.md#DecodeAddress) | **Get** /addresses/{address}/decode | Decoded receiving address information
+[**TxCountByAddress**](AddressesAPI.md#TxCountByAddress) | **Get** /addresses/{address}/transactions/count | Transaction count of an address
+[**UtxoRefsAtAddress**](AddressesAPI.md#UtxoRefsAtAddress) | **Get** /addresses/{address}/utxo_refs | UTxO references at an address
+[**UtxosByAddresses**](AddressesAPI.md#UtxosByAddresses) | **Post** /addresses/utxos | UTxOs at multiple addresses
 
 
 
@@ -41,13 +41,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AddressesApi.AddressUtxos(context.Background(), address).ResolveDatums(resolveDatums).WithCbor(withCbor).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AddressesAPI.AddressUtxos(context.Background(), address).ResolveDatums(resolveDatums).WithCbor(withCbor).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AddressesApi.AddressUtxos``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AddressesAPI.AddressUtxos``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `AddressUtxos`: []Utxo
-    fmt.Fprintf(os.Stdout, "Response from `AddressesApi.AddressUtxos`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AddressesAPI.AddressUtxos`: %v\n", resp)
 }
 ```
 
@@ -115,13 +115,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AddressesApi.DecodeAddress(context.Background(), address).Execute()
+    resp, r, err := apiClient.AddressesAPI.DecodeAddress(context.Background(), address).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AddressesApi.DecodeAddress``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AddressesAPI.DecodeAddress``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `DecodeAddress`: AddressInfo
-    fmt.Fprintf(os.Stdout, "Response from `AddressesApi.DecodeAddress`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AddressesAPI.DecodeAddress`: %v\n", resp)
 }
 ```
 
@@ -185,13 +185,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AddressesApi.TxCountByAddress(context.Background(), address).Execute()
+    resp, r, err := apiClient.AddressesAPI.TxCountByAddress(context.Background(), address).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AddressesApi.TxCountByAddress``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AddressesAPI.TxCountByAddress``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `TxCountByAddress`: AddressTxCount
-    fmt.Fprintf(os.Stdout, "Response from `AddressesApi.TxCountByAddress`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AddressesAPI.TxCountByAddress`: %v\n", resp)
 }
 ```
 
@@ -257,13 +257,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AddressesApi.UtxoRefsAtAddress(context.Background(), address).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AddressesAPI.UtxoRefsAtAddress(context.Background(), address).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AddressesApi.UtxoRefsAtAddress``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AddressesAPI.UtxoRefsAtAddress``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `UtxoRefsAtAddress`: []UtxoRef
-    fmt.Fprintf(os.Stdout, "Response from `AddressesApi.UtxoRefsAtAddress`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AddressesAPI.UtxoRefsAtAddress`: %v\n", resp)
 }
 ```
 
@@ -333,13 +333,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.AddressesApi.UtxosByAddresses(context.Background()).RequestBody(requestBody).ResolveDatums(resolveDatums).WithCbor(withCbor).Count(count).Page(page).Execute()
+    resp, r, err := apiClient.AddressesAPI.UtxosByAddresses(context.Background()).RequestBody(requestBody).ResolveDatums(resolveDatums).WithCbor(withCbor).Count(count).Page(page).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `AddressesApi.UtxosByAddresses``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `AddressesAPI.UtxosByAddresses``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `UtxosByAddresses`: []Utxo
-    fmt.Fprintf(os.Stdout, "Response from `AddressesApi.UtxosByAddresses`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `AddressesAPI.UtxosByAddresses`: %v\n", resp)
 }
 ```
 
