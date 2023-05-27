@@ -1,4 +1,4 @@
-# Go API client for maestro
+# Go API client for Maestro
 
 The **Maestro Blockchain Indexer API** follows the [REST](https://restfulapi.net/) paradigm. To interact with Mapi, please  head over to [Dashboards](https://dashboard.gomaestro.org), create an API project, and copy its associated long-lived API key into your request header.
 
