@@ -1,0 +1,4 @@
+enumClassPrefix: true
+generateInterfaces: true
+packageName: maestro
+structPrefix: true
